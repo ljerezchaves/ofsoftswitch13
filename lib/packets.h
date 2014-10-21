@@ -410,6 +410,26 @@ struct mpls_header {
 
 BUILD_ASSERT_DECL(MPLS_HEADER_LEN == sizeof(struct mpls_header));
 
+#define GTPU_HEADER_LEN 12
+struct gtpu_header {
+    uint8_t flags;
+    uint8_t message_type;
+    uint16_t total_length;
+    uint32_t tunnel_id;
+    uint16_t sequence_number;
+    uint8_t pdu_nuber;
+    uint8_t next_ext_header;
+};
+
+#define GTPU_VERSION_MASK   0xE0
+#define GTPU_PTYPE_MASK     0x10
+#define GTPU_RESERVED_MASK  0x08
+#define GTPU_EXT_FLAG_MASK  0x04
+#define GTPU_SQN_FLAG_MASK  0x02
+#define GTPU_NPDU_FLAG_MASK 0x01
+
+BUILD_ASSERT_DECL(GTPU_HEADER_LEN == sizeof(struct gtpu_header));
+
 struct protocols_std {
    struct eth_header      * eth;
    struct snap_header     * eth_snap; /* points to SNAP header if eth is 802.3 */
@@ -424,6 +444,7 @@ struct protocols_std {
    struct udp_header      * udp;
    struct sctp_header     * sctp;
    struct icmp_header     * icmp;
+   struct gtpu_header     * gtpu;
 };
 
 static inline void
@@ -441,6 +462,7 @@ protocol_reset(struct protocols_std *proto) {
     proto->sctp      = NULL;
     proto->icmp      = NULL;
     proto->pbb       = NULL;
+    proto->gtpu      = NULL;
 }
 
 
