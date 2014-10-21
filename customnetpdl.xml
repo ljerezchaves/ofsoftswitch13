@@ -1734,6 +1734,12 @@
 		</fields>
 	</format>
 
+	<!-- Luciano J C: Enhance OpenFlow with GTP-U tunnel support -->
+	<encapsulation>
+		<switch expr="buf2int(dport)">
+			<case value="2152"> <nextproto proto="#gtpu"/> </case>
+		</switch>
+	</encapsulation>
 
 	<visualization>
 		<showsumtemplate name="udp">
@@ -1983,6 +1989,34 @@
 		</showsumtemplate>
 
 	</visualization>
+</protocol>
+
+<!-- Luciano J C: Enhance OpenFlow with GTP-U tunnel support -->
+<protocol name="gtpu" longname="GPRS Tunneling Protocol version 1">
+	<format>
+		<fields>
+			<field type="fixed" name="flags" longname="Header flags" size="1">
+				<field type="bit" name="versin" longname="Version" mask="0xE0" size="1"/>
+				<field type="bit" name="ptype" longname="Protocol type" mask="0x10" size="1"/>
+				<field type="bit" name="reserved" longname="Reserved" mask="0x08" size="1"/>
+				<field type="bit" name="extflag" longname="Extension header flag" mask="0x04" size="1"/>
+				<field type="bit" name="seqflag" longname="Sequence number flag" mask="0x02" size="1"/>
+				<field type="bit" name="npduflag" longname="N-PDU number flag" mask="0x01" size="1"/>
+			</field>
+			<field type="fixed" name="mtype" longname="Message type" size="1" />
+			<field type="fixed" name="length" longname="Total length" size="2" />
+			<field type="fixed" name="teid" longname="Tunnel Identifier" size="4" />
+			
+			<if expr="(buf2int(extflag) != 0) or (buf2int(seqflag) != 0) or (buf2int(npduflag) != 0)">
+				<if-true>
+					<field type="fixed" name="seqnum" longname="Sequence number" size="2" />
+					<field type="fixed" name="npdu" longname="N-PDU number" size="1" />
+					<field type="fixed" name="ext" longname="Next extension header type" size="1" />
+				</if-true>
+			</if>
+
+		</fields>
+	</format>
 </protocol>
 
 <protocol name="defaultproto" longname="Other data" comment="Generic protocol that is called when no other protocols are available" showsumtemplate="defaultproto">
