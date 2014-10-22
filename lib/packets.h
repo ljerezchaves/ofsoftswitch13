@@ -412,13 +412,13 @@ BUILD_ASSERT_DECL(MPLS_HEADER_LEN == sizeof(struct mpls_header));
 
 #define GTPU_HEADER_LEN 12
 struct gtpu_header {
-    uint8_t flags;
-    uint8_t message_type;
-    uint16_t total_length;
-    uint32_t tunnel_id;
-    uint16_t sequence_number;
-    uint8_t pdu_nuber;
-    uint8_t next_ext_header;
+    uint8_t  gtpu_flags;
+    uint8_t  gtpu_type;
+    uint16_t gtpu_length;
+    uint32_t gtpu_teid;
+    uint16_t gtpu_seqnum;
+    uint8_t  gtpu_pdunum;
+    uint8_t  gtpu_nexthead;
 };
 
 #define GTPU_VERSION_MASK   0xE0
