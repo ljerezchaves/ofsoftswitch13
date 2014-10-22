@@ -538,6 +538,10 @@ parse_oxm_entry(struct ofl_match *match, const struct oxm_field *f,
         case OFI_OXM_OF_IPV6_EXTHDR_W:
             ofl_structs_match_put16m(match, f->header, ntohs(*((uint16_t*) value)),ntohs(*((uint16_t*) mask)));
             return 0;
+        case OFI_OXM_OF_GTPU_TEID:{
+             ofl_structs_match_put32(match, f->header, ntohl(*((uint32_t*) value)));
+             return 0;
+        }
         case NUM_OXM_FIELDS:
             NOT_REACHED();
     }

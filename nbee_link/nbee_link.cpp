@@ -591,6 +591,12 @@ extern "C" int nblink_packet_parse(struct ofpbuf * pktin,  struct ofl_match * pk
                     nblink_extract_proto_fields(pktin, field, pktout, OXM_OF_IPV6_ND_TLL);
                 }
             }
+            if (protocol_Name.compare("gtpu") == 0 && pkt_proto->gtpu == NULL){
+                pkt_proto->gtpu = (struct gtpu_header *) ((uint8_t*) pktin->data + proto->Position);
+
+                PDMLReader->GetPDMLField(proto->Name, (char*) "teid", proto->FirstField, &field);
+                nblink_extract_proto_fields(pktin, field, pktout, OXM_OF_GTPU_TEID);
+            }
             while (!field->isField)
             {
             // This is necessary for Protocols with a Block as a first "field" on NetBee,

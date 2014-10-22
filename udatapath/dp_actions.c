@@ -378,6 +378,11 @@ set_field(struct packet *pkt, struct ofl_action_set_field *act )
                 }
                 break;
             }
+            case OXM_OF_GTPU_TEID:{
+                struct gtpu_header *gtpu = pkt->handle_std->proto->gtpu;
+                gtpu->gtpu_teid = *((uint32_t*) act->field->value);
+                break;
+            }
             default:
                 VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to set unknow field.");
                 break;

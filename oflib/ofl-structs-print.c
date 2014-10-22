@@ -423,6 +423,9 @@ ofl_structs_oxm_tlv_print(FILE *stream, struct ofl_match_tlv *f)
 				fprintf(stream, ", ext_hdr_mask=\"0x%x\"", *((uint16_t*)(f->value+4)));
 			}
 			break;
+		case OFPXMT_OFB_GTPU_TEID:
+			fprintf(stream, "gtpu_teid=\"%d\"", *((uint32_t*) f->value));
+			break;
 		default:
 			fprintf(stream, "unknown type %d", field);
 	}
