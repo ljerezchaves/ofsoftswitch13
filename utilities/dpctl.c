@@ -1708,6 +1708,16 @@ parse_match(char *str, struct ofl_match_header **match) {
             else ofl_structs_match_put64(m, OXM_OF_TUNNEL_ID, tunn_id);
             continue;
         }
+        /* GTP-U TEID */
+        if (strncmp(token, MATCH_GTPU_TEID KEY_VAL, strlen(MATCH_GTPU_TEID KEY_VAL)) == 0) {
+            uint32_t teid;
+            if (parse32(token + strlen(MATCH_GTPU_TEID KEY_VAL), NULL, 0, 0xffffffff, &teid)) {
+                ofp_fatal(0, "Error parsing gtpu_teid: %s.", token);
+            }
+            else ofl_structs_match_put32(m, OXM_OF_GTPU_TEID, teid);
+            continue;
+        }
+
         /*Extension Headers */
         if (strncmp(token, MATCH_EXT_HDR KEY_VAL, strlen(MATCH_EXT_HDR KEY_VAL)) == 0) {
             uint16_t ext_hdr;
@@ -2035,6 +2045,18 @@ parse_set_field(char *token, struct ofl_action_set_field *act) {
                 act->field = (struct ofl_match_tlv*) malloc(sizeof(struct ofl_match_tlv));
                 act->field->header = OXM_OF_IPV6_FLABEL;
                 act->field->value = (uint8_t*) ipv6_label;
+        }
+        return 0;
+    }
+    if (strncmp(token, MATCH_GTPU_TEID KEY_VAL2, strlen(MATCH_GTPU_TEID KEY_VAL2)) == 0) {
+        uint32_t *teid = malloc(sizeof(uint32_t));
+        if (parse32(token + strlen(MATCH_GTPU_TEID KEY_VAL2), NULL, 0, 0xffffffff, teid)) {
+            ofp_fatal(0, "Error parsing gtpu_teid: %s.", token);
+        }
+        else {
+                act->field = (struct ofl_match_tlv*) malloc(sizeof(struct ofl_match_tlv));
+                act->field->header = OXM_OF_GTPU_TEID;
+                act->field->value = (uint8_t*) teid;
         }
         return 0;
     }
@@ -2915,6 +2937,7 @@ struct oxm_str_mapping oxm_str_map[] =
     { .name=MATCH_PBB_ISID, .oxm_id=OXM_OF_PBB_ISID },
     { .name=MATCH_TUNNEL_ID, .oxm_id=OXM_OF_TUNNEL_ID },
     { .name=MATCH_EXT_HDR, .oxm_id=OXM_OF_IPV6_EXTHDR },
+    { .name=MATCH_GTPU_TEID, .oxm_id=OXM_OF_GTPU_TEID},
   };
 
 static void
