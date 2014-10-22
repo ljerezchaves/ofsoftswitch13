@@ -99,7 +99,8 @@
                                   | OFPXMT_OFB_IPV6_ND_TARGET \
                                   | OFPXMT_OFB_IPV6_ND_TLL    \
                                   | OFPXMT_OFB_MPLS_LABEL     \
-                                  | OFPXMT_OFB_MPLS_TC         )
+                                  | OFPXMT_OFB_MPLS_TC        \
+                                  | OFPXMT_OFB_GTPU_TEID      )
                                 
 #define DP_SUPPORTED_GROUPS ( OFPGT_ALL      \
 							| OFPGT_SELECT   \

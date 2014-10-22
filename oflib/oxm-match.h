@@ -224,6 +224,9 @@
 #define OXM_OF_IPV6_EXTHDR  OXM_HEADER      (0x8000, 39, 2)
 #define OXM_OF_IPV6_EXTHDR_W  OXM_HEADER_W  (0x8000, 39, 2)
 
+/* GTP teid */
+#define OXM_OF_GTPU_TEID OXM_HEADER (0x8000, 40, 4)
+
 /* ## ------------------------------- ## */
 /* ## IPv6 compatible fields. ## */
 /* ## ------------------------------- ## */
@@ -284,7 +287,7 @@ enum oxm_field_index {
 #define DEFINE_FIELD(HEADER,DL_TYPES, NW_PROTO, MASKABLE) \
         OFI_OXM_##HEADER,
 #include "oxm-match.def"
-    NUM_OXM_FIELDS = 56
+    NUM_OXM_FIELDS = 57
 };
 
 struct oxm_field {

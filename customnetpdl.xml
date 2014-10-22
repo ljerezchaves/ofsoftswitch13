@@ -2005,7 +2005,7 @@
 			</field>
 			<field type="fixed" name="mtype" longname="Message type" size="1" />
 			<field type="fixed" name="length" longname="Total length" size="2" />
-			<field type="fixed" name="teid" longname="Tunnel Identifier" size="4" />
+			<field type="fixed" name="teid" longname="{0x8000 40} Tunnel Identifier" size="4" />
 			
 			<if expr="(buf2int(extflag) != 0) or (buf2int(seqflag) != 0) or (buf2int(npduflag) != 0)">
 				<if-true>
