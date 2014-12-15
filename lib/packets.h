@@ -261,7 +261,7 @@ BUILD_ASSERT_DECL(IP_HEADER_LEN == sizeof(struct ip_header));
 #define IPV6_VERSION 6
 #define IPV6_DSCP_MASK 0x0fc00000
 #define IPV6_DSCP_SHIFT 22
-#define IPV6_ECN_MASK 0x00300000
+#define IPV6_ECN_MASK 0x0003
 #define IPV6_ECN_SHIFT 20
 #define IPV6_FLABEL_MASK 0x000fffff
 #define IPV6_HEADER_LEN 40
@@ -349,7 +349,7 @@ BUILD_ASSERT_DECL(TCP_HEADER_LEN == sizeof(struct tcp_header));
 struct sctp_header {
     uint16_t sctp_src;
     uint16_t sctp_dst;
-    uint32_t sctp_verif;
+    uint32_t sctp_ver_tag;
     uint32_t sctp_csum;
 };
 BUILD_ASSERT_DECL(SCTP_HEADER_LEN == sizeof(struct sctp_header));
