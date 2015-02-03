@@ -231,10 +231,11 @@ int nblink_extract_proto_fields(struct ofpbuf * pktin, _nbPDMLField * field, str
             ofl_structs_match_put16(pktout, header, m_value);
         }
         else if (header == OXM_OF_VLAN_PCP){
-            uint8_t m_value;
-            sscanf(field->Value, "%hhx", &m_value);
-            m_value = (m_value  & VLAN_PCP_MASK) >> VLAN_PCP_SHIFT;
-            ofl_structs_match_put8(pktout, header, m_value);
+            uint16_t m_value;
+            uint8_t vlan_pcp;
+            sscanf(field->Value, "%hx", &m_value);
+            vlan_pcp = (m_value  & VLAN_PCP_MASK) >> VLAN_PCP_SHIFT;
+            ofl_structs_match_put8(pktout, header, vlan_pcp);
         }
         else if(header == OXM_OF_IP_DSCP){
             uint8_t m_value;
@@ -254,7 +255,7 @@ int nblink_extract_proto_fields(struct ofpbuf * pktin, _nbPDMLField * field, str
             uint8_t m_value;
             if (strcmp(field->Name, "ip ecn") == 0){
                 sscanf(field->Value, "%hhx", &m_value);
-                m_value = (m_value & IP_ECN_MASK) >> IPV6_ECN_SHIFT; 
+                m_value = (m_value & IP_ECN_MASK); 
                 ofl_structs_match_put8(pktout, header, m_value);
             }
             else {
@@ -284,9 +285,13 @@ int nblink_extract_proto_fields(struct ofpbuf * pktin, _nbPDMLField * field, str
         }
         else if (header == OXM_OF_PBB_ISID){
             uint32_t m_value;
+            uint8_t pbb_isid[3];
             sscanf(field->Value, "%x", &m_value);
             m_value = (m_value & PBB_ISID_MASK);
-            ofl_structs_match_put32(pktout, header, m_value);        
+            pbb_isid[0] = (m_value >> 24) & 0xff;
+            pbb_isid[1] = (m_value >> 16) & 0xff;
+            pbb_isid[2] = m_value & 0xff;                                
+            ofl_structs_match_put_pbb_isid(pktout, header, pbb_isid);        
         }
         else if (header == OXM_OF_IPV6_FLABEL){
             uint32_t m_value;
@@ -593,8 +598,8 @@ extern "C" int nblink_packet_parse(struct ofpbuf * pktin,  struct ofl_match * pk
                 nblink_extract_proto_fields(pktin, field, pktout, OXM_OF_ICMPV6_CODE);
                 if (PDMLReader->GetPDMLField(proto->Name, (char*) "NeighSol", proto->FirstField, &field) == nbSUCCESS ||
                     PDMLReader->GetPDMLField(proto->Name, (char*) "NeighAdv", proto->FirstField, &field) == nbSUCCESS){
-                    
                     PDMLReader->GetPDMLField(proto->Name, (char*) "target_address", proto->FirstField, &field);                                            
+                    
                     nblink_extract_proto_fields(pktin, field, pktout, OXM_OF_IPV6_ND_TARGET);                    
                 }
                 if (PDMLReader->GetPDMLField(proto->Name, (char*) "NDO", proto->FirstField, &field) == nbSUCCESS){
