@@ -2497,7 +2497,7 @@ parse_meter_mod_args(char *str, struct ofl_msg_meter_mod *req){
         }
         if (strncmp(token, METER_MOD_METER KEY_VAL, strlen(METER_MOD_METER KEY_VAL)) == 0) {
             uint32_t meter_id;
-            if (parse32(token + strlen(METER_MOD_METER KEY_VAL), NULL, 0, 1024,  &meter_id)) {
+            if (parse32(token + strlen(METER_MOD_METER KEY_VAL), NULL, 0, OFPM_MAX,  &meter_id)) {
                 ofp_fatal(0, "Error parsing meter_mod id: %s.", token);
             }
             req->meter_id = meter_id;
