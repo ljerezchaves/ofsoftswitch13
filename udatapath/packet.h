@@ -62,6 +62,9 @@ struct packet {
     uint8_t             table_id; /* table in which is processed */
     uint32_t            buffer_id; /* if packet is stored in buffer, buffer_id;
                                       otherwise 0xffffffff */
+#ifdef NS3_OFSWITCH13
+    uint64_t            ns3_uid;    /* ns-3 packet UID */
+#endif
 
     struct packet_handle_std  *handle_std; /* handler for standard match structure */
 };

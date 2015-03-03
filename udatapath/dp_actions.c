@@ -50,6 +50,12 @@
 
 #define LOG_MODULE VLM_dp_acts
 
+#if defined (__GNUC__) && defined (NS3_OFSWITCH13)
+    // Define dp_actions_output_port function as weak, 
+    // so ns3 can override it and send the buffer over switch port.
+    #pragma weak dp_actions_output_port
+#endif
+
 static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
 
 /* Note: if the packet has multiple match handlers, they must all be updated
