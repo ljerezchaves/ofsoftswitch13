@@ -42,6 +42,11 @@
 #include "oflib/ofl-print.h"
 #include "util.h"
 
+#if defined (__GNUC__) && defined (NS3_OFSWITCH13)
+    // Define packet_destroy function as weak, so ns3 can override 
+    // it and free packets which were destroyed by the switch.
+    #pragma weak packet_destroy
+#endif
 
 struct packet *
 packet_create(struct datapath *dp, uint32_t in_port,
