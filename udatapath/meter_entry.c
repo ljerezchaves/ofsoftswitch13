@@ -267,6 +267,11 @@ meter_entry_apply(struct meter_entry *entry, struct packet **pkt){
         entry->stats->band_stats[b]->packet_band_count++;
         if (drop){
             VLOG_ERR_RL(LOG_MODULE, &rl, "Dropping packet: rate %d", band_header->rate);
+#ifdef NS3_OFSWITCH13
+    if (entry->dp->meter_drop_cb != 0) {
+        entry->dp->meter_drop_cb (*pkt);
+    }
+#endif
             packet_destroy(*pkt);
             *pkt = NULL;
         }

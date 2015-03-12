@@ -123,9 +123,12 @@ struct datapath {
     void (*pkt_clone_cb) (struct packet *pkt, struct packet *clone);
     void (*pkt_destroy_cb) (struct packet *pkt);
 
-    // Callbacks to notify the simulator when  apacket is saved/retrieved to/from buffer.
+    // Callbacks to notify the simulator when a packet is saved/retrieved to/from buffer.
     void (*buff_save_cb) (struct packet *pkt, time_t timeout);
     void (*buff_retrieve_cb) (struct packet *pkt);
+
+    // Callback to notify the simulator when dropping a packet due to meter band
+    void (*meter_drop_cb) (struct packet *pkt);
 #endif
 };
 
