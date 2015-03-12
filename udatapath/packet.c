@@ -42,11 +42,6 @@
 #include "oflib/ofl-print.h"
 #include "util.h"
 
-#if defined (__GNUC__) && defined (NS3_OFSWITCH13)
-    // Define packet_destroy function as weak, so ns3 can override 
-    // it and free packets which were destroyed by the switch.
-    #pragma weak packet_destroy
-#endif
 
 struct packet *
 packet_create(struct datapath *dp, uint32_t in_port,
@@ -67,8 +62,11 @@ packet_create(struct datapath *dp, uint32_t in_port,
     pkt->out_queue        = 0;
     pkt->buffer_id        = NO_BUFFER;
     pkt->table_id         = 0;
+
 #ifdef NS3_OFSWITCH13
     pkt->ns3_uid          = 0;
+    pkt->changes          = 0;
+    pkt->clone            = false;
 #endif
 
     pkt->handle_std = packet_handle_std_create(pkt);
@@ -99,12 +97,17 @@ packet_clone(struct packet *pkt) {
                                          // but this buffer is a copy of that,
                                          // and might be altered later
     clone->table_id         = pkt->table_id;
-#ifdef NS3_OFSWITCH13
-    clone->ns3_uid          = pkt->ns3_uid;
-#endif
 
     clone->handle_std = packet_handle_std_clone(clone, pkt->handle_std);
 
+#ifdef NS3_OFSWITCH13
+    clone->ns3_uid          = pkt->ns3_uid;
+    clone->changes          = pkt->changes;
+    clone->clone            = true;
+    if (pkt->dp->pkt_clone_cb != 0) {
+        pkt->dp->pkt_clone_cb (pkt, clone);
+    }
+#endif
     return clone;
 }
 
@@ -121,6 +124,11 @@ packet_destroy(struct packet *pkt) {
         }
     }
 
+#ifdef NS3_OFSWITCH13
+    if (pkt->dp->pkt_destroy_cb != 0) {
+        pkt->dp->pkt_destroy_cb (pkt);
+    }
+#endif
     action_set_destroy(pkt->action_set);
     ofpbuf_delete(pkt->buffer);
     packet_handle_std_destroy(pkt->handle_std);
@@ -144,8 +152,9 @@ packet_to_string(struct packet *pkt) {
     fprintf(stream, "\", buffer=\"");
     ofl_buffer_print(stream, pkt->buffer_id);
 #ifdef NS3_OFSWITCH13
-    fprintf(stream, "\", ns3pktid=\"");
-    ofl_buffer_print(stream, pkt->ns3_uid);
+    fprintf(stream, "\", ns3pktid=\"%u", pkt->ns3_uid);
+    fprintf(stream, "\", changes=\"%u", pkt->changes);
+    fprintf(stream, "\", clone=\"%u", pkt->clone);
 #endif    
     fprintf(stream, "\", std=");
     //packet_handle_std_print(stream, pkt->handle_std);

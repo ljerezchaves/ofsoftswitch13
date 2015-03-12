@@ -58,6 +58,7 @@
 struct rconn;
 struct pvconn;
 struct sender;
+struct packet;
 
 /****************************************************************************
  * The datapath
@@ -115,6 +116,16 @@ struct datapath {
      */
     of_hw_driver_t *hw_drv;
     struct hw_pkt_q_entry *hw_pkt_list_head, *hw_pkt_list_tail;
+#endif
+
+#ifdef NS3_OFSWITCH13
+    // Callbacks to notify the simulator when cloning or destroying a packet.
+    void (*pkt_clone_cb) (struct packet *pkt, struct packet *clone);
+    void (*pkt_destroy_cb) (struct packet *pkt);
+
+    // Callbacks to notify the simulator when  apacket is saved/retrieved to/from buffer.
+    void (*buff_save_cb) (struct packet *pkt, time_t timeout);
+    void (*buff_retrieve_cb) (struct packet *pkt);
 #endif
 };
 

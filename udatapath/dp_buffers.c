@@ -140,6 +140,11 @@ dp_buffers_save(struct dp_buffers *dpb, struct packet *pkt) {
 
     pkt->buffer_id  = id;
 
+#ifdef NS3_OFSWITCH13
+    if (dpb->dp->buff_save_cb != 0) {
+        dpb->dp->buff_save_cb (pkt, p->timeout);
+    }
+#endif
     return id;
 }
 
@@ -155,6 +160,11 @@ dp_buffers_retrieve(struct dp_buffers *dpb, uint32_t id) {
         pkt->packet_out = false;
 
         p->pkt = NULL;
+#ifdef NS3_OFSWITCH13
+    if (dpb->dp->buff_retrieve_cb != 0) {
+        dpb->dp->buff_retrieve_cb (pkt);
+    }
+#endif
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "cookie mismatch: %x != %x\n",
                           id >> PKT_BUFFER_BITS, p->cookie);

@@ -65,6 +65,14 @@ static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
  * invalidated.
  */
 
+static void
+packet_modified (struct packet *pkt) {
+#ifdef NS3_OFSWITCH13
+    pkt->changes++;
+#endif
+    return;
+}
+
 /* Executes an output action. */
 static void
 output(struct packet *pkt, struct ofl_action_output *action) {
@@ -438,9 +446,10 @@ set_field(struct packet *pkt, struct ofl_action_set_field *act )
             }
             default:
                 VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to set unknow field.");
-                break;
+                return;
         }
         pkt->handle_std->valid = false;
+        packet_modified (pkt);
         return;
     }
 
@@ -473,10 +482,13 @@ copy_ttl_out(struct packet *pkt, struct ofl_action_header *act UNUSED) {
         }
         else {
             VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute copy ttl in action on packet with only one mpls.");
+            return;
         }
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute COPY_TTL_OUT action on packet with no mpls.");
+        return;
     }
+    packet_modified (pkt);
 }
 
 /* Executes copy ttl in action. */
@@ -513,10 +525,13 @@ copy_ttl_in(struct packet *pkt, struct ofl_action_header *act UNUSED) {
         }
         else {
             VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute copy ttl in action on packet with only one mpls.");
+            return;
         }
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute COPY_TTL_IN action on packet with no mpls.");
+        return;
     }
+    packet_modified (pkt);
 }
 
 /*Executes push vlan action. */
@@ -585,6 +600,7 @@ push_vlan(struct packet *pkt, struct ofl_action_push *act) {
         // TODO Zoltan: This could be faster if VLAN match is updated
         //              and proto pointers are shifted in case of realloc, ...
         pkt->handle_std->valid = false;
+        packet_modified (pkt);
 
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute push vlan action on packet with no eth.");
@@ -617,6 +633,7 @@ pop_vlan(struct packet *pkt, struct ofl_action_header *act UNUSED) {
 
         //TODO Zoltan: revalidating might not be necessary in all cases
         pkt->handle_std->valid = false;
+        packet_modified (pkt);
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute POP_VLAN action on packet with no eth/vlan.");
     }
@@ -631,6 +648,7 @@ set_mpls_ttl(struct packet *pkt, struct ofl_action_mpls_ttl *act) {
         struct mpls_header *mpls = pkt->handle_std->proto->mpls;
 
         mpls->fields = (mpls->fields & ~ntohl(MPLS_TTL_MASK)) | ntohl((act->mpls_ttl << MPLS_TTL_SHIFT) & MPLS_TTL_MASK);
+        packet_modified (pkt);
 
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute SET_MPLS_TTL action on packet with no mpls.");
@@ -648,6 +666,7 @@ dec_mpls_ttl(struct packet *pkt, struct ofl_action_header *act UNUSED) {
 
         if (ttl > 0) { ttl--; }
         mpls->fields = (mpls->fields & ~ntohl(MPLS_TTL_MASK)) | htonl(ttl);
+        packet_modified (pkt);
 
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute DEC_MPLS_TTL action on packet with no mpls.");
@@ -752,6 +771,7 @@ push_mpls(struct packet *pkt, struct ofl_action_push *act) {
         // in 1.1 all proto but eth and mpls will be hidden,
         // so revalidating won't be a tedious work (probably)
         pkt->handle_std->valid = false;
+        packet_modified (pkt);
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute PUSH_MPLS action on packet with no eth.");
     }
@@ -790,6 +810,7 @@ pop_mpls(struct packet *pkt, struct ofl_action_pop_mpls *act) {
 
         //TODO Zoltan: revalidating might not be necessary at all cases
         pkt->handle_std->valid = false;
+        packet_modified (pkt);
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute POP_MPLS action on packet with no eth/mpls.");
     }
@@ -867,6 +888,7 @@ push_pbb(struct packet *pkt, struct ofl_action_push *act) {
         }
 
         pkt->handle_std->valid = false;
+        packet_modified (pkt);
 
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute push pbb action on packet with no eth.");
@@ -891,6 +913,7 @@ pop_pbb(struct packet *pkt, struct ofl_action_header *act UNUSED) {
         pkt->buffer->size -= move_size;
 
         pkt->handle_std->valid = false;
+        packet_modified (pkt);
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute POP_PBB action on packet with no PBB header.");
     }
@@ -927,7 +950,9 @@ set_nw_ttl(struct packet *pkt, struct ofl_action_set_nw_ttl *act) {
     }
     else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute SET_NW_TTL action on packet with no ipv4 or ipv6.");
+        return;
     }
+    packet_modified (pkt);
 }
 
 /* Executes dec nw ttl action.
@@ -954,7 +979,9 @@ dec_nw_ttl(struct packet *pkt, struct ofl_action_header *act UNUSED) {
     }
     else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute DEC_NW_TTL action on packet with no ipv4.");
+        return;
     }
+    packet_modified (pkt);
 }
 
 
