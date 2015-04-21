@@ -142,7 +142,7 @@ dp_buffers_save(struct dp_buffers *dpb, struct packet *pkt) {
 
 #ifdef NS3_OFSWITCH13
     if (dpb->dp->buff_save_cb != 0) {
-        dpb->dp->buff_save_cb (pkt, p->timeout);
+        dpb->dp->buff_save_cb (pkt, OVERWRITE_SECS);
     }
 #endif
     return id;
