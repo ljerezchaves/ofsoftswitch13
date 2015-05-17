@@ -111,9 +111,9 @@ if BUILD_NS3_LIBS
 # Build udatapath as a ns3 library
 #
 
-noinst_LIBRARIES += udatapath/libns3openflow13.a
+noinst_LIBRARIES += udatapath/libns3ofswitch13.a
 
-udatapath_libns3openflow13_a_SOURCES = \
+udatapath_libns3ofswitch13_a_SOURCES = \
 	udatapath/action_set.c \
 	udatapath/action_set.h \
 	udatapath/crc32.c \
@@ -158,7 +158,7 @@ udatapath_libns3openflow13_a_SOURCES = \
 	lib/vlog.h \
 	lib/vlog.c
 
-udatapath_libns3openflow13_a_LIBADD = \
+udatapath_libns3ofswitch13_a_LIBADD = \
 	oflib/ofl-actions.o \
 	oflib/ofl-actions-pack.o \
 	oflib/ofl-actions-print.o \
@@ -175,12 +175,12 @@ udatapath_libns3openflow13_a_LIBADD = \
 	oflib/oxm-match.o \
 	oflib/ofl-print.o
 
-udatapath_libns3openflow13_a_LIBADD += \
+udatapath_libns3ofswitch13_a_LIBADD += \
 	oflib-exp/ofl-exp.o \
 	oflib-exp/ofl-exp-nicira.o \
 	oflib-exp/ofl-exp-openflow.o
 
-udatapath_libns3openflow13_a_LIBADD += \
+udatapath_libns3ofswitch13_a_LIBADD += \
 	lib/backtrace.o \
 	lib/command-line.o \
 	lib/csum.o \
@@ -221,22 +221,22 @@ udatapath_libns3openflow13_a_LIBADD += \
 	lib/vconn-unix.o \
 	lib/vlog-socket.o
 
-udatapath_libns3openflow13_a_LIBADD += \
+udatapath_libns3ofswitch13_a_LIBADD += \
 	nbee_link/nbee_link.o 
 
 if HAVE_NETLINK
-udatapath_libns3openflow13_a_LIBADD += \
+udatapath_libns3ofswitch13_a_LIBADD += \
 	lib/dpif.o \
 	lib/netlink.o \
 	lib/vconn-netlink.o
 endif
 
 if HAVE_OPENSSL
-udatapath_libns3openflow13_a_LIBADD += \
+udatapath_libns3ofswitch13_a_LIBADD += \
 	lib/vconn-ssl.o
 endif
 
-udatapath_libns3openflow13_a_CPPFLAGS = $(AM_CPPFLAGS)
-udatapath_libns3openflow13_a_CPPFLAGS += -DUDATAPATH_AS_LIB -DDPCTL_AS_LIB -DNS3_OFSWITCH13 -g -lnbee_link
+udatapath_libns3ofswitch13_a_CPPFLAGS = $(AM_CPPFLAGS)
+udatapath_libns3ofswitch13_a_CPPFLAGS += -DUDATAPATH_AS_LIB -DDPCTL_AS_LIB -DNS3_OFSWITCH13 -g -lnbee_link
 
 endif

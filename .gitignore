@@ -118,8 +118,8 @@ udatapath/udatapath_ofdatapath-pipeline.o
 udatapath/udatapath_ofdatapath-udatapath.o
 udatapath/udatapath_ofdatapath-meter_entry.o
 udatapath/udatapath_ofdatapath-meter_table.o
-udatapath/libns3openflow13.a
-udatapath_libns3openflow13_a-*.o
+udatapath/libns3ofswitch13.a
+udatapath_libns3ofswitch13_a-*.o
 utilities/.deps/
 utilities/.dirstamp
 utilities/dpctl.o
