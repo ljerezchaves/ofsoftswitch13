@@ -156,7 +156,9 @@ udatapath_libns3ofswitch13_a_SOURCES = \
 	lib/timeval.h \
 	lib/timeval.c \
 	lib/vlog.h \
-	lib/vlog.c
+	lib/vlog.c \
+	nbee_link/nbee_link.h \
+	nbee_link/nbee_link.cpp
 
 udatapath_libns3ofswitch13_a_LIBADD = \
 	oflib/ofl-actions.o \
@@ -221,9 +223,6 @@ udatapath_libns3ofswitch13_a_LIBADD += \
 	lib/vconn-unix.o \
 	lib/vlog-socket.o
 
-udatapath_libns3ofswitch13_a_LIBADD += \
-	nbee_link/nbee_link.o 
-
 if HAVE_NETLINK
 udatapath_libns3ofswitch13_a_LIBADD += \
 	lib/dpif.o \
@@ -237,6 +236,6 @@ udatapath_libns3ofswitch13_a_LIBADD += \
 endif
 
 udatapath_libns3ofswitch13_a_CPPFLAGS = $(AM_CPPFLAGS)
-udatapath_libns3ofswitch13_a_CPPFLAGS += -DUDATAPATH_AS_LIB -DDPCTL_AS_LIB -DNS3_OFSWITCH13 -g -lnbee_link
+udatapath_libns3ofswitch13_a_CPPFLAGS += -DUDATAPATH_AS_LIB -DDPCTL_AS_LIB -DNS3_OFSWITCH13 -DNETPDLDIR='"$(shell pwd)"' -g -lnbee_link
 
 endif
