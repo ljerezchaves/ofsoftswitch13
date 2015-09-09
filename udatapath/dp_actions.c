@@ -95,7 +95,7 @@ set_field(struct packet *pkt, struct ofl_action_set_field *act )
     {
         /*Field existence is guaranteed by the
         field pre-requisite on matching */
-        fprintf(stderr, "Header %d\n", OXM_FIELD(act->field->header));
+        // fprintf(stderr, "Header %d\n", OXM_FIELD(act->field->header));
         switch(act->field->header){
             case OXM_OF_ETH_DST:{
                 memcpy(pkt->handle_std->proto->eth->eth_dst,
