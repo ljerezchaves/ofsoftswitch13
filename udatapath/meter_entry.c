@@ -212,6 +212,7 @@ meter_entry_apply(struct meter_entry *entry, struct packet **pkt){
 	size_t b;
 	bool drop = false;
 
+    VLOG_DBG_RL(LOG_MODULE, &rl, "Applying meter id %d", entry->config->meter_id);
     entry->stats->packet_in_count++;
     entry->stats->byte_in_count += (*pkt)->buffer->size;
 
