@@ -127,8 +127,11 @@ struct datapath {
     void (*buff_save_cb) (struct packet *pkt, time_t timeout);
     void (*buff_retrieve_cb) (struct packet *pkt);
 
-    // Callback to notify the simulator when dropping a packet due to meter band
+    // Callback to notify the simulator when dropping a packet due to meter band.
     void (*meter_drop_cb) (struct packet *pkt);
+
+    // Callback to notify the simulator of a new meter entry created at meter table.
+    void (*meter_created_cb) (struct meter_entry *entry);
 #endif
 };
 
