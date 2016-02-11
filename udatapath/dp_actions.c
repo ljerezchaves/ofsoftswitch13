@@ -65,13 +65,19 @@ static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
  * invalidated.
  */
 
+#ifdef NS3_OFSWITCH13
 static void
 packet_modified (struct packet *pkt) {
-#ifdef NS3_OFSWITCH13
     pkt->changes++;
-#endif
     return;
 }
+#else
+static void
+packet_modified (struct packet *pkt UNUSED) {
+    return;
+}
+#endif
+
 
 /* Executes an output action. */
 static void

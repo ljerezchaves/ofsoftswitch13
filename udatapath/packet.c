@@ -152,7 +152,7 @@ packet_to_string(struct packet *pkt) {
     fprintf(stream, "\", buffer=\"");
     ofl_buffer_print(stream, pkt->buffer_id);
 #ifdef NS3_OFSWITCH13
-    fprintf(stream, "\", ns3pktid=\"%u", pkt->ns3_uid);
+    fprintf(stream, "\", ns3pktid=\"%" PRIu64, pkt->ns3_uid);
     fprintf(stream, "\", changes=\"%u", pkt->changes);
     fprintf(stream, "\", clone=\"%u", pkt->clone);
 #endif    

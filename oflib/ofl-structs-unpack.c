@@ -49,12 +49,12 @@ ofl_err
 ofl_structs_instructions_unpack(struct ofp_instruction *src, size_t *len, struct ofl_instruction_header **dst, struct ofl_exp *exp) {
     size_t ilen;
     struct ofl_instruction_header *inst = NULL;
-
+     
     if (*len < sizeof(struct ofp_instruction)) {
         OFL_LOG_WARN(LOG_MODULE, "Received instruction is too short (%zu).", *len);
         return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
     }
-
+   
     if (*len < ntohs(src->len)) {
         OFL_LOG_WARN(LOG_MODULE, "Received instruction has invalid length (set to %u, but only %zu received).", ntohs(src->len), *len);
         return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
@@ -193,7 +193,7 @@ ofl_structs_instructions_unpack(struct ofp_instruction *src, size_t *len, struct
             break;
         }
         default:
-            OFL_LOG_WARN(LOG_MODULE, "The received instruction type (%u) is invalid.", ntohs(src->type));
+            OFL_LOG_WARN(LOG_MODULE, "The received instruction type (%d) is invalid.", ntohs(src->type));
             return ofl_error(OFPET_BAD_INSTRUCTION, OFPBIC_UNKNOWN_INST);
     }
 
@@ -498,7 +498,6 @@ ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src, uint8_t *buf, size_t *
         OFL_LOG_WARN(LOG_MODULE, "Received flow stats has invalid length (%zu).", *len);
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
     }
-
     if (*len < ntohs(src->length)) {
         OFL_LOG_WARN(LOG_MODULE, "Received flow stats reply has invalid length (set to %u, but only %zu received).", ntohs(src->length), *len);
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);

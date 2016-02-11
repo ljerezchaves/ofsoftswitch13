@@ -46,7 +46,6 @@
 #include "meter_table.h"
 #include "oflib/ofl.h"
 #include "oflib/ofl-structs.h"
-#include "nbee_link/nbee_link.h"
 #include "util.h"
 #include "hash.h"
 #include "oflib/oxm-match.h"
@@ -65,23 +64,18 @@ struct pipeline *
 pipeline_create(struct datapath *dp) {
     struct pipeline *pl;
     int i;
-
     pl = xmalloc(sizeof(struct pipeline));
     for (i=0; i<PIPELINE_TABLES; i++) {
         pl->tables[i] = flow_table_create(dp, i);
     }
     pl->dp = dp;
-
     nblink_initialize();
-
     return pl;
 }
 
 static bool
 is_table_miss(struct flow_entry *entry){
-
     return ((entry->stats->priority) == 0 && (entry->match->length <= 4));
-
 }
 
 /* Sends a packet to the controller in a packet_in message */
@@ -131,13 +125,7 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
     }
 
     if (!packet_handle_std_is_ttl_valid(pkt->handle_std)) {
-        if ((pl->dp->config.flags & OFPC_INVALID_TTL_TO_CONTROLLER) != 0) {
-            VLOG_DBG_RL(LOG_MODULE, &rl, "Packet has invalid TTL, sending to controller.");
-
-            send_packet_to_controller(pl, pkt, 0/*table_id*/, OFPR_INVALID_TTL);
-        } else {
-            VLOG_DBG_RL(LOG_MODULE, &rl, "Packet has invalid TTL, dropping.");
-        }
+        send_packet_to_controller(pl, pkt, 0/*table_id*/, OFPR_INVALID_TTL);
         packet_destroy(pkt);
         return;
     }
@@ -643,7 +631,7 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
                     hmap_node, hash_int(OXM_OF_METADATA,0), &(*pkt)->handle_std->match.match_fields){
                     uint64_t *metadata = (uint64_t*) f->value;
                     *metadata = (*metadata & ~wi->metadata_mask) | (wi->metadata & wi->metadata_mask);
-                    VLOG_DBG_RL(LOG_MODULE, &rl, "Executing write metadata: %"PRIx64"", *metadata);
+                    VLOG_DBG_RL(LOG_MODULE, &rl, "Executing write metadata: %"PRIu64"", *metadata);
                 }
                 break;
             }

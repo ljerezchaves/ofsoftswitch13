@@ -54,6 +54,9 @@
 #include "timeval.h"
 #include "list.h"
 
+#ifdef NS3_OFSWITCH13
+#include "meter_entry.h"
+#endif
 
 struct rconn;
 struct pvconn;

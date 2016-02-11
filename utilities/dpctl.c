@@ -214,8 +214,10 @@ dpctl_transact_and_print(struct vconn *vconn, struct ofl_msg_header *req,
 static void
 usage(void) NO_RETURN;
 
+#ifndef DPCTL_AS_LIB
 static void
 parse_options(int argc, char *argv[]);
+#endif
 
 static uint8_t mask_all[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
@@ -297,7 +299,7 @@ static int
 parse16(char *str, struct names16 *names, size_t names_num, uint16_t max, uint16_t *val);
 
 static int
-parse16m(char *str, struct names16 *names, size_t names_num, uint16_t max, uint16_t *val, uint16_t *mask);
+parse16m(char *str, struct names16 *names, size_t names_num, uint16_t max, uint16_t *val, uint16_t *mask) UNUSED;
 
 static int
 parse32(char *str, struct names32 *names, size_t names_num, uint32_t max, uint32_t *val);
@@ -1157,6 +1159,7 @@ dpctl_exec_ns3_command(void *ctrl, int argc, char *argv[])
 }
 #endif
 
+#ifndef DPCTL_AS_LIB
 static void
 parse_options(int argc, char *argv[])
 {
@@ -1222,6 +1225,7 @@ parse_options(int argc, char *argv[])
     }
     free(short_options);
 }
+#endif
 
 
 

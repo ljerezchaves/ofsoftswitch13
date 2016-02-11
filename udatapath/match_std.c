@@ -176,7 +176,6 @@ packet_match(struct ofl_match *flow_match, struct ofl_match *packet){
             packet_header |= field_len;
             flow_mask = f->value + field_len;
         }
-
         /* Lookup the packet header */
         packet_f = oxm_match_lookup(packet_header, packet);
         if (!packet_f) {

@@ -252,10 +252,10 @@ dp_ports_run(struct datapath *dp) {
 
     // find largest MTU on our interfaces
     // buffer is shared among all (idle) interfaces...
-    LIST_FOR_EACH_SAFE (p, pn, struct sw_port, node, &dp->port_list) {
+    LIST_FOR_EACH_SAFE (p, pn, struct sw_port, node, &dp->port_list) {        
+        const int mtu = netdev_get_mtu(p->netdev);
         if (IS_HW_PORT(p)) 
             continue;
-        const int mtu = netdev_get_mtu(p->netdev);
         if (mtu > max_mtu)
             max_mtu = mtu;
     }
@@ -671,6 +671,7 @@ dp_ports_handle_port_mod(struct datapath *dp, struct ofl_msg_port_mod *msg,
                                                 const struct sender *sender) {
 
     struct sw_port *p;
+    struct ofl_msg_port_status rep_msg;
 
     if(sender->remote->role == OFPCR_ROLE_SLAVE)
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
@@ -699,12 +700,10 @@ dp_ports_handle_port_mod(struct datapath *dp, struct ofl_msg_port_mod *msg,
     }
 
     /*Notify all controllers that the port status has changed*/
-    struct ofl_msg_port_status rep_msg =
-            {{.type = OFPT_PORT_STATUS},
-             .reason = OFPPR_MODIFY, .desc = p->conf};
-
+    rep_msg.header.type = OFPT_PORT_STATUS;
+    rep_msg.reason =   OFPPR_MODIFY;
+    rep_msg.desc = p->conf;      
     dp_send_message(dp, (struct ofl_msg_header *)&rep_msg, NULL/*sender*/);
-
     ofl_msg_free((struct ofl_msg_header *)msg, dp->exp);
     return 0;
 }

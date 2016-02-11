@@ -197,7 +197,6 @@ udatapath_libns3ofswitch13_a_LIBADD += \
 	lib/hash.o \
 	lib/hmap.o \
 	lib/ipv6_util.o \
-	lib/leak-checker.o \
 	lib/list.o \
 	lib/mac-learning.o \
 	lib/netdev.o \
