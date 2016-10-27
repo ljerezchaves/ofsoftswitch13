@@ -45,7 +45,7 @@
 
 struct packet *
 packet_create(struct datapath *dp, uint32_t in_port,
-    struct ofpbuf *buf, bool packet_out) {
+    struct ofpbuf *buf, uint64_t tunnel_id, bool packet_out) {
     struct packet *pkt;
 
     pkt = xmalloc(sizeof(struct packet));
@@ -62,6 +62,7 @@ packet_create(struct datapath *dp, uint32_t in_port,
     pkt->out_queue        = 0;
     pkt->buffer_id        = NO_BUFFER;
     pkt->table_id         = 0;
+    pkt->tunnel_id        = tunnel_id;
 
 #ifdef NS3_OFSWITCH13
     pkt->ns3_uid          = 0;
@@ -157,7 +158,7 @@ packet_to_string(struct packet *pkt) {
     fprintf(stream, "\", clone=\"%u", pkt->clone);
 #endif    
     fprintf(stream, "\", std=");
-    //packet_handle_std_print(stream, pkt->handle_std);
+    packet_handle_std_print(stream, pkt->handle_std);
     fprintf(stream, "}");
 
     fclose(stream);

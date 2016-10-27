@@ -144,7 +144,7 @@ handle_control_packet_out(struct datapath *dp, struct ofl_msg_packet_out *msg,
         buf = ofpbuf_new(0);
         ofpbuf_use(buf, msg->data, msg->data_length);
         ofpbuf_put_uninit(buf, msg->data_length);        
-        pkt = packet_create(dp, msg->in_port, buf, true);        
+        pkt = packet_create(dp, msg->in_port, buf, 0, true);        
     } else {
         /* NOTE: in this case packet should not have data */
         pkt = dp_buffers_retrieve(dp->buffers, msg->buffer_id);

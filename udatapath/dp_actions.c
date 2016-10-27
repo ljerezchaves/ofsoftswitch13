@@ -451,7 +451,9 @@ set_field(struct packet *pkt, struct ofl_action_set_field *act )
                 return;
         }
         pkt->handle_std->valid = false;
-        packet_modified (pkt);
+        if (act->field->header != OXM_OF_TUNNEL_ID) {
+            packet_modified (pkt);
+        }
         return;
     }
 

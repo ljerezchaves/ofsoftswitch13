@@ -51,7 +51,7 @@ void
 packet_handle_std_validate(struct packet_handle_std *handle) {
     struct ofl_match_tlv * iter, *next, *f;
     uint64_t metadata = 0;
-    uint64_t tunnel_id = 0;
+    uint64_t tunnel_id = handle->pkt->tunnel_id;
     if(handle->valid)
         return;
     
@@ -82,6 +82,8 @@ packet_handle_std_validate(struct packet_handle_std *handle) {
     /*Add metadata  and tunnel_id value to the hash_map */
     ofl_structs_match_put64(&handle->match,  OXM_OF_METADATA, metadata);
     ofl_structs_match_put64(&handle->match,  OXM_OF_TUNNEL_ID, tunnel_id);
+    /* Update packet tunnel id metadata */
+    handle->pkt->tunnel_id = tunnel_id;
     return;
 }
 

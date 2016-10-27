@@ -62,6 +62,7 @@ struct packet {
     uint8_t             table_id; /* table in which is processed */
     uint32_t            buffer_id; /* if packet is stored in buffer, buffer_id;
                                       otherwise 0xffffffff */
+    uint64_t            tunnel_id; /* tunnel id set by logical input port */
 
     struct packet_handle_std  *handle_std; /* handler for standard match structure */
 
@@ -76,7 +77,7 @@ struct packet {
 
 /* Creates a packet. */
 struct packet *
-packet_create(struct datapath *dp, uint32_t in_port, struct ofpbuf *buf, bool packet_out);
+packet_create(struct datapath *dp, uint32_t in_port, struct ofpbuf *buf, uint64_t tunnel_id, bool packet_out);
 
 /* Converts the packet to a string representation. */
 char *

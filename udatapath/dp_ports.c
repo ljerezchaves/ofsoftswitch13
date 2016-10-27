@@ -223,7 +223,7 @@ process_buffer(struct datapath *dp, struct sw_port *p, struct ofpbuf *buffer) {
     }
 
     // packet takes ownership of ofpbuf buffer
-    pkt = packet_create(dp, p->stats->port_no, buffer, false);
+    pkt = packet_create(dp, p->stats->port_no, buffer, 0, false);
     pipeline_process_packet(dp->pipeline, pkt);
 }
 

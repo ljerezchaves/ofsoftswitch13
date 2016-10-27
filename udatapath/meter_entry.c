@@ -260,6 +260,9 @@ meter_entry_apply(struct meter_entry *entry, struct packet **pkt){
                     }
                 }
                 (*pkt)->handle_std->valid = false;
+#ifdef NS3_OFSWITCH13
+                (*pkt)->changes++;
+#endif
 		}
                 break;
             }
