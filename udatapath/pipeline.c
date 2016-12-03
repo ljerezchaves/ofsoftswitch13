@@ -120,7 +120,7 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
 
     if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
         char *pkt_str = packet_to_string(pkt);
-        VLOG_DBG_RL(LOG_MODULE, &rl, "processing packet: %s", pkt_str);
+        VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu processing packet: %s", pl->dp->id, pkt_str);
         free(pkt_str);
     }
 
@@ -134,7 +134,7 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
     while (next_table != NULL) {
         struct flow_entry *entry;
 
-        VLOG_DBG_RL(LOG_MODULE, &rl, "trying table %u.", next_table->stats->table_id);
+        VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu trying table %u.", pl->dp->id, next_table->stats->table_id);
 
         pkt->table_id = next_table->stats->table_id;
         table         = next_table;
@@ -143,14 +143,14 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
         // EEDBEH: additional printout to debug table lookup
         if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
             char *m = ofl_structs_match_to_string((struct ofl_match_header*)&(pkt->handle_std->match), pkt->dp->exp);
-            VLOG_DBG_RL(LOG_MODULE, &rl, "searching table entry for packet match: %s.", m);
+            VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu searching table entry for packet match: %s.", pl->dp->id, m);
             free(m);
         }
         entry = flow_table_lookup(table, pkt);
         if (entry != NULL) {
 	        if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
                 char *m = ofl_structs_flow_stats_to_string(entry->stats, pkt->dp->exp);
-                VLOG_DBG_RL(LOG_MODULE, &rl, "found matching entry: %s.", m);
+                VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu found matching entry: %s.", pl->dp->id, m);
                 free(m);
             }
             pkt->handle_std->table_miss = is_table_miss(entry);
@@ -169,12 +169,12 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
 
         } else {
 			/* OpenFlow 1.3 default behavior on a table miss */
-			VLOG_DBG_RL(LOG_MODULE, &rl, "No matching entry found. Dropping packet.");
+			VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu No matching entry found. Dropping packet.", pl->dp->id);
 			packet_destroy(pkt);
 			return;
         }
     }
-    VLOG_WARN_RL(LOG_MODULE, &rl, "Reached outside of pipeline processing cycle.");
+    VLOG_WARN_RL(LOG_MODULE, &rl, "Datapath %lu Reached outside of pipeline processing cycle.", pl->dp->id);
 }
 
 static
@@ -631,7 +631,7 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
                     hmap_node, hash_int(OXM_OF_METADATA,0), &(*pkt)->handle_std->match.match_fields){
                     uint64_t *metadata = (uint64_t*) f->value;
                     *metadata = (*metadata & ~wi->metadata_mask) | (wi->metadata & wi->metadata_mask);
-                    VLOG_DBG_RL(LOG_MODULE, &rl, "Executing write metadata: %"PRIu64"", *metadata);
+                    VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu Executing write metadata: %"PRIu64"", pl->dp->id, *metadata);
                 }
                 break;
             }
