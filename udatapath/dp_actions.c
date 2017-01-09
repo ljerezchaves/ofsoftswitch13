@@ -469,6 +469,7 @@ copy_ttl_out(struct packet *pkt, struct ofl_action_header *act UNUSED) {
             // There is an inner MPLS header
             struct mpls_header *in_mpls = (struct mpls_header *)((uint8_t *)mpls + MPLS_HEADER_LEN);
             mpls->fields = (mpls->fields & ~htonl(MPLS_TTL_MASK)) | (in_mpls->fields & htonl(MPLS_TTL_MASK));
+            packet_modified (pkt);
 
         } else if (pkt->buffer->size >= ETH_HEADER_LEN + MPLS_HEADER_LEN + 
             IP_HEADER_LEN || pkt->buffer->size >= ETH_HEADER_LEN + 
@@ -478,21 +479,20 @@ copy_ttl_out(struct packet *pkt, struct ofl_action_header *act UNUSED) {
             if (version == IPV4_VERSION){
                 struct ip_header *ipv4 = (struct ip_header *)((uint8_t *)mpls + MPLS_HEADER_LEN);
                 mpls->fields = (mpls->fields & ~htonl(MPLS_TTL_MASK)) | htonl((uint32_t)ipv4->ip_ttl & MPLS_TTL_MASK);
+                packet_modified (pkt);
             }
             else if (version == IPV6_VERSION){
                struct ipv6_header *ipv6 = (struct ipv6_header *)((uint8_t *)mpls + MPLS_HEADER_LEN);
                mpls->fields = (mpls->fields & ~htonl(MPLS_TTL_MASK)) | htonl((uint32_t)ipv6->ipv6_hop_limit & MPLS_TTL_MASK); 
+               packet_modified (pkt);
             }
         }
         else {
             VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute copy ttl in action on packet with only one mpls.");
-            return;
         }
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute COPY_TTL_OUT action on packet with no mpls.");
-        return;
     }
-    packet_modified (pkt);
 }
 
 /* Executes copy ttl in action. */
@@ -507,6 +507,7 @@ copy_ttl_in(struct packet *pkt, struct ofl_action_header *act UNUSED) {
             struct mpls_header *in_mpls = (struct mpls_header *)((uint8_t *)mpls + MPLS_HEADER_LEN);
 
             in_mpls->fields = (in_mpls->fields & ~htonl(MPLS_TTL_MASK)) | (mpls->fields & htonl(MPLS_TTL_MASK));
+            packet_modified (pkt);
 
         } else if (pkt->buffer->size >= ETH_HEADER_LEN + MPLS_HEADER_LEN + 
             IP_HEADER_LEN || pkt->buffer->size >= ETH_HEADER_LEN + 
@@ -520,22 +521,21 @@ copy_ttl_in(struct packet *pkt, struct ofl_action_header *act UNUSED) {
                 uint16_t new_val = htons((ipv4->ip_proto) + (new_ttl<<8));
                 ipv4->ip_csum = recalc_csum16(ipv4->ip_csum, old_val, new_val);
                 ipv4->ip_ttl = new_ttl;
+                packet_modified (pkt);
             }
             else if (version == IPV6_VERSION){
                struct ipv6_header *ipv6 = (struct ipv6_header *)((uint8_t *)mpls + MPLS_HEADER_LEN);
                uint8_t new_ttl = (ntohl(mpls->fields) & MPLS_TTL_MASK) >> MPLS_TTL_SHIFT;
                 ipv6->ipv6_hop_limit = new_ttl;
+                packet_modified (pkt);
             }
         }
         else {
             VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute copy ttl in action on packet with only one mpls.");
-            return;
         }
     } else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute COPY_TTL_IN action on packet with no mpls.");
-        return;
     }
-    packet_modified (pkt);
 }
 
 /*Executes push vlan action. */
@@ -948,15 +948,15 @@ set_nw_ttl(struct packet *pkt, struct ofl_action_set_nw_ttl *act) {
         uint16_t new_val = htons((ipv4->ip_proto) + (act->nw_ttl<<8));
         ipv4->ip_csum = recalc_csum16(ipv4->ip_csum, old_val, new_val);
         ipv4->ip_ttl = act->nw_ttl;
+        packet_modified (pkt);
     } else if (pkt->handle_std->proto->ipv6 != NULL){
        struct ipv6_header *ipv6 = pkt->handle_std->proto->ipv6;
        ipv6->ipv6_hop_limit = act->nw_ttl;
+        packet_modified (pkt);
     }
     else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute SET_NW_TTL action on packet with no ipv4 or ipv6.");
-        return;
     }
-    packet_modified (pkt);
 }
 
 /* Executes dec nw ttl action.
@@ -974,18 +974,18 @@ dec_nw_ttl(struct packet *pkt, struct ofl_action_header *act UNUSED) {
             uint16_t new_val = htons((ipv4->ip_proto) + (new_ttl<<8));
             ipv4->ip_csum = recalc_csum16(ipv4->ip_csum, old_val, new_val);
             ipv4->ip_ttl = new_ttl;
+            packet_modified (pkt);
         }
     } else if (pkt->handle_std->proto->ipv6 != NULL){
         struct ipv6_header *ipv6 = pkt->handle_std->proto->ipv6;
         if (ipv6->ipv6_hop_limit > 0){
             --ipv6->ipv6_hop_limit;
+            packet_modified (pkt);
        }
     }
     else {
         VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute DEC_NW_TTL action on packet with no ipv4.");
-        return;
     }
-    packet_modified (pkt);
 }
 
 
@@ -1073,6 +1073,8 @@ dp_execute_action(struct packet *pkt,
             VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute unknown action type (%u).", action->type);
         }
     }
+
+    packet_handle_std_validate(pkt->handle_std);
     if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
         char *p = packet_to_string(pkt);
         VLOG_DBG_RL(LOG_MODULE, &rl, "action result: %s", p);
