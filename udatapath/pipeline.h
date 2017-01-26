@@ -57,6 +57,13 @@ struct pipeline {
 struct pipeline *
 pipeline_create(struct datapath *dp);
 
+#if defined (__GNUC__) && defined (NS3_OFSWITCH13)
+/* Sends a packet to the controller in a packet_in message. 
+ * This signature is necessary here only when compiling the ns3 library. */
+void
+send_packet_to_controller(struct pipeline *pl, struct packet *pkt, uint8_t table_id, uint8_t reason);
+#endif
+
 /* Processes a packet in the pipeline. */
 void
 pipeline_process_packet(struct pipeline *pl, struct packet *pkt);

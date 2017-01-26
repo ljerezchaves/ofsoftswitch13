@@ -51,6 +51,11 @@
 #include "oflib/oxm-match.h"
 #include "vlog.h"
 
+#if defined (__GNUC__) && defined (NS3_OFSWITCH13)
+    // Define send_packet_to_controller functions as weak, 
+    // so ns3 can override it configure the packet_in message. 
+    #pragma weak send_packet_to_controller
+#endif
 
 #define LOG_MODULE VLM_pipeline
 
@@ -79,7 +84,10 @@ is_table_miss(struct flow_entry *entry){
 }
 
 /* Sends a packet to the controller in a packet_in message */
-static void
+#ifndef NS3_OFSWITCH13
+static
+#endif
+void
 send_packet_to_controller(struct pipeline *pl, struct packet *pkt, uint8_t table_id, uint8_t reason) {
 
     struct ofl_msg_packet_in msg;
