@@ -293,7 +293,12 @@ vlog_set_log_file(const char *file_name)
 
     /* Open new log file and update min_levels[] to reflect whether we actually
      * have a log_file. */
+#ifdef NS3_OFSWITCH13
+    // When linked to ns-3, rewrite existing log file
+    log_file = fopen(log_file_name, "w");
+#else
     log_file = fopen(log_file_name, "a");
+#endif
     for (module = 0; module < VLM_N_MODULES; module++) {
         update_min_level(module);
     }
