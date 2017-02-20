@@ -14,7 +14,7 @@ This code is released under the BSD license (BSD-like for code from the original
 Thanks to the original [CPqD OpenFlow 1.3 Software Switch][cpqdofs13] contributors. Special thanks to [Eder Leão Fernandes][ederlf], for contributing to the integration between this software switch and the ns-3 simulator.
 
 # Contact
-Luciano Jerez Chaves (luciano at lrc dot ic dot unicamp dot br)
+Feel free to subscribe to [our mailing list at Google groups][group] and provide some feedback, give us suggestions, interact with other users, or to just say hello!
 ![Google Analytics](https://ga-beacon.appspot.com/UA-12913294-2/ljerezchaves/ofsoftswitch13?pixel "")
 
 [ofp13]: https://www.opennetworking.org/sdn-resources/technical-library
@@ -23,3 +23,4 @@ Luciano Jerez Chaves (luciano at lrc dot ic dot unicamp dot br)
 [compile]: https://github.com/CPqD/ofsoftswitch13/blob/master/README.md
 [ofswitch13]: https://bitbucket.org/ljerezchaves/ofswitch13-module
 [ederlf]: https://github.com/ederlf
+[group]: https://groups.google.com/forum/#!forum/ofswitch13-users
