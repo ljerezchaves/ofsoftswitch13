@@ -44,8 +44,8 @@
  ****************************************************************************/
 
 
-#define GROUP_TABLE_MAX_ENTRIES 4096
-#define GROUP_TABLE_MAX_BUCKETS 8192
+#define GROUP_TABLE_MAX_ENTRIES 65535
+#define GROUP_TABLE_MAX_BUCKETS 131070
 
 struct datapath;
 struct packet;
