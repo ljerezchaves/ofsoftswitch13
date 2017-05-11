@@ -58,9 +58,9 @@ meter_table_create(struct datapath *dp) {
     hmap_init(&table->meter_entries);
  
 	table->features = xmalloc(sizeof(struct ofl_meter_features));
-	table->features->max_meter = DEFAULT_MAX_METER;
-	table->features->max_bands = DEFAULT_MAX_BAND_PER_METER;
-	table->features->max_color = DEFAULT_MAX_METER_COLOR;
+	table->features->max_meter = METER_TABLE_MAX_ENTRIES;
+	table->features->max_bands = METER_TABLE_MAX_BAND_PER_METER;
+	table->features->max_color = METER_TABLE_MAX_COLOR;
 	table->features->capabilities = OFPMF_KBPS | OFPMF_BURST | OFPMF_STATS;  /* Rate value in kb/s (kilo-bit per second).
 																				Do burst size. Collect statistics.*/
 	table->features->band_types = 1;
@@ -120,13 +120,15 @@ meter_table_add(struct meter_table *table, struct ofl_msg_meter_mod *mod) {
         return ofl_error(OFPET_METER_MOD_FAILED, OFPMMFC_METER_EXISTS);
     }
 
-    if (table->entries_num == DEFAULT_MAX_METER) {
+    if (table->entries_num == table->features->max_meter) {
         return ofl_error(OFPET_METER_MOD_FAILED, OFPMMFC_OUT_OF_METERS);
     }
 
+#ifndef NS3_OFSWITCH13
     if (table->bands_num + mod->meter_bands_num > METER_TABLE_MAX_BANDS) {
         return ofl_error(OFPET_METER_MOD_FAILED, OFPMMFC_OUT_OF_BANDS);
     }
+#endif
 
     entry = meter_entry_create(table->dp, table, mod);
 
@@ -154,9 +156,11 @@ meter_table_modify(struct meter_table *table, struct ofl_msg_meter_mod *mod) {
         return ofl_error(OFPET_METER_MOD_FAILED, OFPMMFC_UNKNOWN_METER);
     }
 
+#ifndef NS3_OFSWITCH13
     if (table->bands_num - entry->config->meter_bands_num + mod->meter_bands_num > METER_TABLE_MAX_BANDS) {
         return ofl_error(OFPET_METER_MOD_FAILED, OFPMMFC_OUT_OF_BANDS);
     }
+#endif
 
     new_entry = meter_entry_create(table->dp, table, mod);
 

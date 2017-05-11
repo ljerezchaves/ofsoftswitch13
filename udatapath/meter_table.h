@@ -40,9 +40,9 @@
 #include "oflib/ofl-messages.h"
 #include "meter_entry.h"
 
-#define DEFAULT_MAX_METER 65535
-#define DEFAULT_MAX_BAND_PER_METER 16
-#define DEFAULT_MAX_METER_COLOR 8
+#define METER_TABLE_MAX_ENTRIES 65535
+#define METER_TABLE_MAX_BAND_PER_METER 16
+#define METER_TABLE_MAX_COLOR 8
 #define METER_TABLE_MAX_BANDS 131070
 
 

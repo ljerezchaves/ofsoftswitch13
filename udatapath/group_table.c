@@ -81,13 +81,18 @@ group_table_add(struct group_table *table, struct ofl_msg_group_mod *mod) {
         return ofl_error(OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS);
     }
 
-    if (table->entries_num == GROUP_TABLE_MAX_ENTRIES) {
+    if (table->entries_num == table->features->max_groups[0]) {
+        // Current implementation don't care about the number of entries of each type.
+        // It only checks for the maximum number of entries on table. So we can get
+        // the maximum value from the first max_groups position.
         return ofl_error(OFPET_GROUP_MOD_FAILED, OFPGMFC_OUT_OF_GROUPS);
     }
 
+#ifndef NS3_OFSWITCH13
     if (table->buckets_num + mod->buckets_num > GROUP_TABLE_MAX_BUCKETS) {
         return ofl_error(OFPET_GROUP_MOD_FAILED, OFPGMFC_OUT_OF_BUCKETS);
     }
+#endif
 
     entry = group_entry_create(table->dp, table, mod);
 
@@ -110,9 +115,11 @@ group_table_modify(struct group_table *table, struct ofl_msg_group_mod *mod) {
         return ofl_error(OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP);
     }
 
+#ifndef NS3_OFSWITCH13
     if (table->buckets_num - entry->desc->buckets_num + mod->buckets_num > GROUP_TABLE_MAX_BUCKETS) {
         return ofl_error(OFPET_GROUP_MOD_FAILED, OFPGMFC_OUT_OF_BUCKETS);
     }
+#endif
 
     if (!is_loop_free(table, mod)) {
         return ofl_error(OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP);
@@ -336,7 +343,7 @@ group_table_create(struct datapath *dp) {
 	table->features->types = DP_SUPPORTED_GROUPS;
 	table->features->capabilities = DP_SUPPORTED_GROUP_CAPABILITIES;    
 	for(i = 0; i < 4; i++){
-		table->features->max_groups[i] = 255;
+		table->features->max_groups[i] = GROUP_TABLE_MAX_ENTRIES;
 		table->features->actions[i] = DP_SUPPORTED_ACTIONS;
 	}	
     table->entries_num = 0;
