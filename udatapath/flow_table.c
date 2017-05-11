@@ -135,7 +135,7 @@ flow_table_add(struct flow_table *table, struct ofl_msg_flow_mod *mod, bool chec
         }
     }
 
-    if (table->stats->active_count == FLOW_TABLE_MAX_ENTRIES) {
+    if (table->stats->active_count == table->features->max_entries) {
         return ofl_error(OFPET_FLOW_MOD_FAILED, OFPFMFC_TABLE_FULL);
     }
     table->stats->active_count++;
