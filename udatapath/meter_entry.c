@@ -136,6 +136,11 @@ meter_entry_create(struct datapath *dp, struct meter_table *table, struct ofl_ms
 
     list_init(&entry->flow_refs);
 
+#ifdef NS3_OFSWITCH13
+    if (dp->meter_created_cb != 0) {
+        dp->meter_created_cb (entry);
+    }
+#endif
     return entry;
 }
 

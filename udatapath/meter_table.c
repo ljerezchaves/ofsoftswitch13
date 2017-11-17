@@ -137,12 +137,6 @@ meter_table_add(struct meter_table *table, struct ofl_msg_meter_mod *mod) {
     table->entries_num++;
     table->bands_num += entry->stats->meter_bands_num;
     ofl_msg_free_meter_mod(mod, false);
-
-#ifdef NS3_OFSWITCH13
-    if (table->dp->meter_created_cb != 0) {
-        table->dp->meter_created_cb (entry);
-    }
-#endif
     return 0;
 }
 
