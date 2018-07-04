@@ -389,7 +389,7 @@ ofl_structs_oxm_tlv_print(FILE *stream, struct ofl_match_tlv *f)
 			fprintf(stream, "icmpv6_code=\"%d\"", *f->value);
 			break;
 		case OFPXMT_OFB_MPLS_LABEL:
-			fprintf(stream, "mpls_label=\"%d\"",((uint32_t) *f->value) & 0x000fffff);
+			fprintf(stream, "mpls_label=\"%d\"",*((uint32_t*) f->value) & 0x000fffff);
 			break;
 		case OFPXMT_OFB_MPLS_TC:
 			fprintf(stream, "mpls_tc=\"%d\"", *f->value & 0x3);
@@ -732,8 +732,8 @@ ofl_structs_meter_features_to_string(struct ofl_meter_features* s){
 void
 ofl_structs_meter_features_print(FILE *stream, struct ofl_meter_features* s){
     
-    fprintf(stream, "{max_meter=\"%"PRIu32"\", band_types=\"%"PRIx32"\","
-            "capabilities =\"%"PRIx32"\", max_bands = %u , max_color = %u",  
+    fprintf(stream, "{max_meter=\"%"PRIu32"\", band_types=\"0x%"PRIx32"\","
+            "capabilities =\"0x%"PRIx32"\", max_bands = %u , max_color = %u",  
                 s->max_meter, s->band_types, s->capabilities, s->max_bands, s->max_color);
     fprintf(stream, "}"); 
 
