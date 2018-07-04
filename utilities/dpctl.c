@@ -211,10 +211,10 @@ void
 dpctl_transact_and_print(struct vconn *vconn, struct ofl_msg_header *req,
                               struct ofl_msg_header **repl);
 
+#ifndef DPCTL_AS_LIB
 static void
 usage(void) NO_RETURN;
 
-#ifndef DPCTL_AS_LIB
 static void
 parse_options(int argc, char *argv[]);
 #endif
@@ -1225,7 +1225,6 @@ parse_options(int argc, char *argv[])
     }
     free(short_options);
 }
-#endif
 
 
 
@@ -1274,6 +1273,7 @@ usage(void)
             "  -V, --version               display version information\n");
      exit(EXIT_SUCCESS);
 }
+#endif
 
 static void
 parse_match(char *str, struct ofl_match_header **match) {
