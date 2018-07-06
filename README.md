@@ -16,7 +16,7 @@ Feel free to subscribe to [our mailing list at Google groups][group] and provide
 
 [ofp13]: https://www.opennetworking.org/sdn-resources/technical-library
 [cpqdofs13]: https://github.com/CPqD/ofsoftswitch13
-[ofswitch13]: https://github.com/ljerezchaves/ofswitch13-module
+[ofswitch13]: https://github.com/ljerezchaves/ofswitch13
 [ns-3]: https://www.nsnam.org
 [ederlf]: https://github.com/ederlf
 [group]: https://groups.google.com/forum/#!forum/ofswitch13-users
