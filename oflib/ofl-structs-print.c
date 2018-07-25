@@ -424,7 +424,10 @@ ofl_structs_oxm_tlv_print(FILE *stream, struct ofl_match_tlv *f)
 			}
 			break;
 		case OFPXMT_OFB_GTPU_TEID:
-			fprintf(stream, "gtpu_teid=\"%d\"", *((uint32_t*) f->value));
+			fprintf(stream, "gtpu_teid=\"0x%"PRIx32"\"", *((uint32_t*)f->value));
+			if (OXM_HASMASK(f->header)) {
+				fprintf(stream, ", gtpu_teid_mask=\"0x%"PRIx32"\"", *((uint32_t*)(f->value+4)));
+			}
 			break;
 		default:
 			fprintf(stream, "unknown type %d", field);

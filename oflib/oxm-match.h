@@ -68,7 +68,7 @@ enum oxm_field_index {
 #define DEFINE_FIELD(HEADER,DL_TYPES, NW_PROTO, MASKABLE) \
         OFI_OXM_##HEADER,
 #include "oxm-match.def"
-    NUM_OXM_FIELDS = 57
+    NUM_OXM_FIELDS = 58
 };
 
 struct oxm_field {

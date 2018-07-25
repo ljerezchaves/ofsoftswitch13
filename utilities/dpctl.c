@@ -1757,10 +1757,17 @@ parse_match(char *str, struct ofl_match_header **match) {
         /* GTP-U TEID */
         if (strncmp(token, MATCH_GTPU_TEID KEY_VAL, strlen(MATCH_GTPU_TEID KEY_VAL)) == 0) {
             uint32_t teid;
-            if (parse32(token + strlen(MATCH_GTPU_TEID KEY_VAL), NULL, 0, 0xffffffff, &teid)) {
+            uint32_t *mask;
+            if (parse32m(token + strlen (MATCH_GTPU_TEID KEY_VAL), NULL, 0, 0xffffffff, &teid, &mask)) {
                 ofp_fatal(0, "Error parsing gtpu_teid: %s.", token);
             }
-            else ofl_structs_match_put32(m, OXM_OF_GTPU_TEID, teid);
+            else
+              if (mask == NULL)
+                ofl_structs_match_put32(m, OXM_OF_GTPU_TEID, teid);
+              else {
+                ofl_structs_match_put32m(m, OXM_OF_GTPU_TEID_W, teid, *mask);
+                free(mask);
+              }
             continue;
         }
 

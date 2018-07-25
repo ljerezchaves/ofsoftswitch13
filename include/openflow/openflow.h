@@ -907,8 +907,9 @@ enum ofp_vlan_id {
  *
  * Format: 32-bit integer in network byte order.
  *
- * Masking: Not maskable. */
-#define OXM_OF_GTPU_TEID    OXM_HEADER (0x8000, OFPXMT_OFB_GTPU_TEID, 4)
+ * Masking: Arbitrary masks. */
+#define OXM_OF_GTPU_TEID    OXM_HEADER   (0x8000, OFPXMT_OFB_GTPU_TEID, 4)
+#define OXM_OF_GTPU_TEID_W  OXM_HEADER_W (0x8000, OFPXMT_OFB_GTPU_TEID, 4)
 
 /* Bit definitions for IPv6 Extension Header pseudo-field. */
 enum ofp_ipv6exthdr_flags {      
