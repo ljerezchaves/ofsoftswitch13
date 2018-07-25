@@ -898,7 +898,7 @@ enum ofp_vlan_id {
 #define OXM_OF_IPV6_EXTHDR   OXM_HEADER  (0x8000, OFPXMT_OFB_IPV6_EXTHDR, 2)
 #define OXM_OF_IPV6_EXTHDR_W OXM_HEADER_W(0x8000, OFPXMT_OFB_IPV6_EXTHDR, 2)
 
-/* The GTP TEID.
+/* The GTP-U TEID.
  *
  * Prereqs:
  *   OXM_OF_ETH_TYPE must match either 0x0800 or 0x86dd.
