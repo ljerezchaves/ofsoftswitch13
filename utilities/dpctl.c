@@ -2501,7 +2501,7 @@ parse_flow_mod_args(char *str, struct ofl_msg_flow_mod *req) {
             continue;
         }
         if (strncmp(token, FLOW_MOD_FLAGS KEY_VAL, strlen(FLOW_MOD_FLAGS KEY_VAL)) == 0) {
-            if (sscanf(token, FLOW_MOD_FLAGS KEY_VAL "0x%"SCNx16"", &(req->flags)) != 1) {
+            if (parse16(token + strlen(FLOW_MOD_FLAGS KEY_VAL), NULL, 0, UINT16_MAX, &req->flags)) {
                 ofp_fatal(0, "Error parsing %s: %s.", FLOW_MOD_FLAGS, token);
             }
             continue;
