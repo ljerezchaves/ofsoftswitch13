@@ -205,8 +205,8 @@ ofl_msg_print_meter_mod(struct ofl_msg_meter_mod *msg, FILE *stream) {
     fprintf(stream,"{cmd=\"");
     ofl_meter_mod_command_print(stream, msg->command);
     fprintf(stream, "\", flags=\"0x%"PRIx16"\"",msg->flags);
-    fprintf(stream, "\", meter_id=\"%"PRIu32"\"",msg->meter_id);
-    fprintf(stream,"\", bands=[");
+    fprintf(stream, ", meter_id=\"0x%"PRIx32"\"",msg->meter_id);
+    fprintf(stream,", bands=[");
 
     for (i=0; i<msg->meter_bands_num; i++) {
         ofl_structs_meter_band_print(stream, msg->bands[i]);
@@ -220,8 +220,7 @@ ofl_msg_print_meter_mod(struct ofl_msg_meter_mod *msg, FILE *stream) {
 static void
 ofl_msg_print_meter_stats_request(struct ofl_msg_multipart_meter_request *msg, FILE *stream){
 
-    fprintf(stream, "{meter_id= %x", msg->meter_id);
-    fprintf(stream, "\"");
+    fprintf(stream, "{meter_id= 0x%"PRIx32"\"", msg->meter_id);
 }
 
 static void

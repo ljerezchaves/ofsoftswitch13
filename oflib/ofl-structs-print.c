@@ -127,7 +127,7 @@ ofl_structs_instruction_print(FILE *stream, struct ofl_instruction_header *inst,
         }
         case (OFPIT_METER):{
             struct ofl_instruction_meter *i = (struct ofl_instruction_meter *)inst;
-            fprintf(stream, "{meter=\"%u\"}", i->meter_id);          
+            fprintf(stream, "{meter=\"0x%"PRIx32"\"}", i->meter_id);          
             break;
         }
         case (OFPIT_EXPERIMENTER): {
@@ -681,7 +681,7 @@ void
 ofl_structs_meter_stats_print(FILE *stream, struct ofl_meter_stats* s){
     size_t i;
 
-    fprintf(stream, "{meter= %x\"", s->meter_id);
+    fprintf(stream, "{meter= 0x%"PRIx32"\"", s->meter_id);
     fprintf(stream, "\", flow_cnt=\"%u\", pkt_in_cnt=\"%"PRIu64"\", byte_in_cnt=\"%"PRIu64"\"" 
                     ", duration_sec=\"%"PRIu32"\", duration_nsec=\"%"PRIu32"\", bands=[",
                   s->flow_count, s->packet_in_count, s->byte_in_count, 
@@ -709,7 +709,7 @@ void
 ofl_structs_meter_config_print(FILE *stream, struct ofl_meter_config* s){
     size_t i;
     
-    fprintf(stream, "{meter= %x\"", s->meter_id);
+    fprintf(stream, "{meter= 0x%"PRIx32"\"", s->meter_id);
     fprintf(stream, "\", flags=\"%"PRIx16"\", bands=[",
                   s->flags);    
 
@@ -735,7 +735,7 @@ ofl_structs_meter_features_to_string(struct ofl_meter_features* s){
 void
 ofl_structs_meter_features_print(FILE *stream, struct ofl_meter_features* s){
     
-    fprintf(stream, "{max_meter=\"%"PRIu32"\", band_types=\"0x%"PRIx32"\","
+    fprintf(stream, "{max_meter=\"0x%"PRIx32"\", band_types=\"0x%"PRIx32"\","
             "capabilities =\"0x%"PRIx32"\", max_bands = %u , max_color = %u",  
                 s->max_meter, s->band_types, s->capabilities, s->max_bands, s->max_color);
     fprintf(stream, "}"); 
