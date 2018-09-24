@@ -1585,7 +1585,7 @@ ofl_msg_unpack_queue_get_config_reply(struct ofp_header *src, size_t *len, struc
 
     queue = sr->queues;
     for (i = 0; i < dr->queues_num; i++) {
-        error = ofl_structs_packet_queue_unpack(queue, len, &(dr->queues[i]));
+	error = ofl_structs_packet_queue_unpack(queue, len, &(dr->queues[i]));
         if (error) {
             OFL_UTILS_FREE_ARR_FUN(dr->queues, i,
                                    ofl_structs_free_packet_queue);
