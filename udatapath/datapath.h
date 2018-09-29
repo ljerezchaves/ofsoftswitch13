@@ -122,6 +122,9 @@ struct datapath {
 #endif
 
 #ifdef NS3_OFSWITCH13
+    // Effective number of pipeline tables.
+    size_t pipeline_num_tables;
+
     // Callbacks to notify the simulator when cloning or destroying a packet.
     void (*pkt_clone_cb) (struct packet *pkt, struct packet *clone);
     void (*pkt_destroy_cb) (struct packet *pkt);

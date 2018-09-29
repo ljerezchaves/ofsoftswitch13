@@ -68,7 +68,7 @@
  * be set to zero.
  */
 #define OFP_VERSION   0x04
-#define PIPELINE_TABLES 64
+
 #define OFP_MAX_TABLE_NAME_LEN 32
 #define OFP_MAX_PORT_NAME_LEN  16
 /* Official IANA registered port for OpenFlow. */

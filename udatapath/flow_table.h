@@ -80,7 +80,7 @@ flow_table_timeout(struct flow_table *table);
 
 /* Creates a flow table. */
 struct flow_table *
-flow_table_create(struct datapath *dp, uint8_t table_id);
+flow_table_create(struct pipeline *pl, uint8_t table_id);
 
 /* Destroys a flow table. */
 void

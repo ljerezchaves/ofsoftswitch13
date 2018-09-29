@@ -49,9 +49,13 @@ struct sender;
 /* A pipeline structure */
 struct pipeline {
     struct datapath    *dp;
-    struct flow_table  *tables[PIPELINE_TABLES];
+    struct flow_table  *tables[OFPTT_MAX + 1];
+    size_t              num_tables;
 };
 
+/* The default number of pipeline tables */
+#define PIPELINE_NUM_TABLES 64
+BUILD_ASSERT_DECL((PIPELINE_NUM_TABLES >= 1) && (PIPELINE_NUM_TABLES <= (OFPTT_MAX + 1)));
 
 /* Creates a pipeline. */
 struct pipeline *

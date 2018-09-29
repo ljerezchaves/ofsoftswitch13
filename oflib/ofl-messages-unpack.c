@@ -66,7 +66,7 @@ ofl_msg_unpack_error(struct ofp_header *src, size_t *len, struct ofl_msg_header 
 
     de = (struct ofl_msg_error *)malloc(sizeof(struct ofl_msg_error));
 
-    de->type = (enum ofp_error_type)ntohs(se->type);
+    de->type = (enum ofp_error_type)((int)ntohs(se->type));
     de->code = ntohs(se->code);
     de->data_length = *len;
     de->data = *len > 0 ? (uint8_t *)memcpy(malloc(*len), se->data, *len) : NULL;
@@ -241,7 +241,7 @@ ofl_msg_unpack_packet_in(struct ofp_header *src, uint8_t* buf, size_t *len, stru
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_PORT);
     }*/
 
-    if (sp->table_id == PIPELINE_TABLES) {
+    if (sp->table_id > OFPTT_MAX) {
         if (OFL_LOG_IS_WARN_ENABLED(LOG_MODULE)) {
             char *ts = ofl_table_to_string(sp->table_id);
             OFL_LOG_WARN(LOG_MODULE, "Received PACKET_IN has invalid table_id (%s).", ts);
@@ -286,7 +286,7 @@ ofl_msg_unpack_flow_removed(struct ofp_header *src,uint8_t *buf, size_t *len, st
 
     sr = (struct ofp_flow_removed *)src ;
 
-    if (sr->table_id >= PIPELINE_TABLES) {
+    if (sr->table_id > OFPTT_MAX) {
         if (OFL_LOG_IS_WARN_ENABLED(LOG_MODULE)) {
             char *ts = ofl_table_to_string(sr->table_id);
             OFL_LOG_WARN(LOG_MODULE, "Received FLOW_REMOVED message has invalid table_id (%s).", ts);
@@ -451,7 +451,7 @@ ofl_msg_unpack_flow_mod(struct ofp_header *src,uint8_t* buf, size_t *len, struct
     sm = (struct ofp_flow_mod *)src;
     dm = (struct ofl_msg_flow_mod *)malloc(sizeof(struct ofl_msg_flow_mod));
 
-    if (sm->table_id >= PIPELINE_TABLES && ((sm->command != OFPFC_DELETE
+    if (sm->table_id > OFPTT_MAX && ((sm->command != OFPFC_DELETE
     || sm->command != OFPFC_DELETE_STRICT) && sm->table_id != OFPTT_ALL)) {
         OFL_LOG_WARN(LOG_MODULE, "Received FLOW_MOD message has invalid table id (%d).", sm->table_id );
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
@@ -539,7 +539,7 @@ ofl_msg_unpack_group_mod(struct ofp_header *src, size_t *len, struct ofl_msg_hea
 
     dm = (struct ofl_msg_group_mod *)malloc(sizeof(struct ofl_msg_group_mod));
 
-    dm->command = (enum ofp_group_mod_command)ntohs(sm->command);
+    dm->command = (enum ofp_group_mod_command)((int)ntohs(sm->command));
     dm->type = sm->type;
     dm->group_id = ntohl(sm->group_id);
 
@@ -690,7 +690,7 @@ ofl_msg_unpack_table_mod(struct ofp_header *src, size_t *len, struct ofl_msg_hea
 
     sm = (struct ofp_table_mod *)src;
     dm = (struct ofl_msg_table_mod *)malloc(sizeof(struct ofl_msg_table_mod));
-    if (sm->table_id >= PIPELINE_TABLES) {
+    if (sm->table_id > OFPTT_MAX && sm->table_id != OFPTT_ALL) {
         OFL_LOG_WARN(LOG_MODULE, "Received TABLE_MOD message has invalid table id (%d).", sm->table_id );
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
     }
@@ -721,7 +721,7 @@ ofl_msg_unpack_multipart_request_flow(struct ofp_multipart_request *os, uint8_t*
     sm = (struct ofp_flow_stats_request *)os->body;
     dm = (struct ofl_msg_multipart_request_flow *) malloc(sizeof(struct ofl_msg_multipart_request_flow));
 
-    if (sm->table_id != OFPTT_ALL && sm->table_id >= PIPELINE_TABLES) {
+    if (sm->table_id > OFPTT_MAX && sm->table_id != OFPTT_ALL) {
          OFL_LOG_WARN(LOG_MODULE, "Received MULTIPART REQUEST FLOW message has invalid table id (%d).", sm->table_id );
          return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
     }
@@ -983,7 +983,7 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
     }
 
     ofls = (struct ofl_msg_multipart_request_header *)(*msg);
-    ofls->type = (enum ofp_multipart_types)ntohs(os->type);
+    ofls->type = (enum ofp_multipart_types)((int)ntohs(os->type));
     ofls->flags = ntohs(os->flags);
 
     return 0;
@@ -1523,7 +1523,7 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
     }
 
     ofls = (struct ofl_msg_multipart_reply_header *)(*msg);
-    ofls->type = (enum ofp_multipart_types)ntohs(os->type);
+    ofls->type = (enum ofp_multipart_types)((int)ntohs(os->type));
     ofls->flags = ntohs(os->flags);
 
     return 0;

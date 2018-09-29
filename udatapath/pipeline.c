@@ -68,12 +68,17 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
 struct pipeline *
 pipeline_create(struct datapath *dp) {
     struct pipeline *pl;
-    int i;
+    size_t i;
     pl = xmalloc(sizeof(struct pipeline));
-    for (i=0; i<PIPELINE_TABLES; i++) {
-        pl->tables[i] = flow_table_create(dp, i);
-    }
     pl->dp = dp;
+#ifdef NS3_OFSWITCH13
+    pl->num_tables = dp->pipeline_num_tables;
+#else
+    pl->num_tables = PIPELINE_NUM_TABLES;
+#endif
+    for (i = 0; i < pl->num_tables; i++) {
+        pl->tables[i] = flow_table_create(pl, i);
+    }
     nblink_initialize();
     return pl;
 }
@@ -198,7 +203,7 @@ int inst_compare(const void *inst1, const void *inst2){
 ofl_err
 pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
                                                 const struct sender *sender) {
-    /* Note: the result of using table_id = 0xff is undefined in the spec.
+    /* Note: the result of using table_id = OFPTT_ALL is undefined in the spec.
      *       for now it is accepted for delete commands, meaning to delete
      *       from all tables */
     ofl_err error;
@@ -207,6 +212,9 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
 
     if(sender->remote->role == OFPCR_ROLE_SLAVE)
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
+
+    if(msg->table_id >= pl->num_tables && msg->table_id != OFPTT_ALL)
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
 
     match_kept = false;
     insts_kept = false;
@@ -231,17 +239,17 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
             }
         }
 	/* Reject goto in the last table. */
-	if ((msg->table_id == (PIPELINE_TABLES - 1))
+	if ((msg->table_id == (pl->num_tables - 1))
 	    && (msg->instructions[i]->type == OFPIT_GOTO_TABLE))
 	  return ofl_error(OFPET_BAD_INSTRUCTION, OFPBIC_UNSUP_INST);
     }
 
-    if (msg->table_id == 0xff) {
+    if (msg->table_id == OFPTT_ALL) {
         if (msg->command == OFPFC_DELETE || msg->command == OFPFC_DELETE_STRICT) {
             size_t i;
 
             error = 0;
-            for (i=0; i < PIPELINE_TABLES; i++) {
+            for (i=0; i < pl->num_tables; i++) {
                 error = flow_table_flow_mod(pl->tables[i], msg, &match_kept, &insts_kept);
                 if (error) {
                     break;
@@ -288,10 +296,13 @@ pipeline_handle_table_mod(struct pipeline *pl,
     if(sender->remote->role == OFPCR_ROLE_SLAVE)
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
 
-    if (msg->table_id == 0xff) {
+    if(msg->table_id >= pl->num_tables && msg->table_id != OFPTT_ALL)
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
+
+    if (msg->table_id == OFPTT_ALL) {
         size_t i;
 
-        for (i=0; i<PIPELINE_TABLES; i++) {
+        for (i = 0; i < pl->num_tables; i++) {
             pl->tables[i]->features->config = msg->config;
         }
     } else {
@@ -307,13 +318,18 @@ pipeline_handle_stats_request_flow(struct pipeline *pl,
                                    struct ofl_msg_multipart_request_flow *msg,
                                    const struct sender *sender) {
 
-    struct ofl_flow_stats **stats = xmalloc(sizeof(struct ofl_flow_stats *));
+    struct ofl_flow_stats **stats; 
     size_t stats_size = 1;
     size_t stats_num = 0;
 
-    if (msg->table_id == 0xff) {
+    if(msg->table_id >= pl->num_tables && msg->table_id != OFPTT_ALL)
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
+
+    stats = xmalloc(sizeof(struct ofl_flow_stats *));
+
+    if (msg->table_id == OFPTT_ALL) {
         size_t i;
-        for (i=0; i<PIPELINE_TABLES; i++) {
+        for (i = 0; i < pl->num_tables; i++) {
             flow_table_stats(pl->tables[i], msg, &stats, &stats_size, &stats_num);
         }
     } else {
@@ -343,9 +359,9 @@ pipeline_handle_stats_request_table(struct pipeline *pl,
     struct ofl_table_stats **stats;
     size_t i;
 
-    stats = xmalloc(sizeof(struct ofl_table_stats *) * PIPELINE_TABLES);
+    stats = xmalloc(sizeof(struct ofl_table_stats *) * pl->num_tables);
 
-    for (i=0; i<PIPELINE_TABLES; i++) {
+    for (i = 0; i < pl->num_tables; i++) {
         stats[i] = pl->tables[i]->stats;
     }
 
@@ -354,7 +370,7 @@ pipeline_handle_stats_request_table(struct pipeline *pl,
                 {{{.type = OFPT_MULTIPART_REPLY},
                   .type = OFPMP_TABLE, .flags = 0x0000},
                  .stats     = stats,
-                 .stats_num = PIPELINE_TABLES};
+                 .stats_num = pl->num_tables};
 
         dp_send_message(pl->dp, (struct ofl_msg_header *)&reply, sender);
     }
@@ -371,7 +387,7 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
     struct ofl_table_features **features;
     struct ofl_msg_multipart_request_table_features *feat =
                        (struct ofl_msg_multipart_request_table_features *) msg;
-    int i;           /* Feature index in feature array. Jean II */
+    size_t i;           /* Feature index in feature array. Jean II */
     int table_id;
     ofl_err error = 0;
 
@@ -379,7 +395,7 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
      * ofl_structs_table_features_unpack(). Jean II */
     if(feat->table_features != NULL) {
         for(i = 0; i < feat->tables_num; i++){
-	    if(feat->table_features[i]->table_id >= PIPELINE_TABLES)
+	    if(feat->table_features[i]->table_id >= pl->num_tables)
 	        return ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_TABLE);
 	    /* We may want to validate things like config, max_entries,
 	     * metadata... */
@@ -474,7 +490,7 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
         if (error == 0) {
 
             /* Disable all tables, they will be selectively re-enabled. */
-            for(table_id = 0; table_id < PIPELINE_TABLES; table_id++){
+            for(table_id = 0; table_id < pl->num_tables; table_id++){
 	        pl->tables[table_id]->disabled = true;
             }
             /* Change tables configuration
@@ -512,26 +528,26 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
     /* Return 8 tables per reply segment. */
     for (i = 0; i < 8; i++){
         /* Skip disabled tables. */
-        while((table_id < PIPELINE_TABLES) && (pl->tables[table_id]->disabled == true))
+        while((table_id < pl->num_tables) && (pl->tables[table_id]->disabled == true))
 	    table_id++;
 	/* Stop at the last table. */
-	if(table_id >= PIPELINE_TABLES)
+	if(table_id >= pl->num_tables)
 	    break;
 	/* Use that table in the reply. */
         features[i] = pl->tables[table_id]->features;
         table_id++;
     }
-    VLOG_DBG(LOG_MODULE, "multipart reply: returning %d tables, next table-id %d", i, table_id);
+    VLOG_DBG(LOG_MODULE, "multipart reply: returning %zu tables, next table-id %d", i, table_id);
     {
     struct ofl_msg_multipart_reply_table_features reply =
          {{{.type = OFPT_MULTIPART_REPLY},
            .type = OFPMP_TABLE_FEATURES,
-           .flags = (table_id == PIPELINE_TABLES ? 0x00000000 : OFPMPF_REPLY_MORE) },
+           .flags = (table_id == pl->num_tables ? 0x00000000 : OFPMPF_REPLY_MORE) },
           .table_features     = features,
           .tables_num = i };
           dp_send_message(pl->dp, (struct ofl_msg_header *)&reply, sender);
     }
-    if (table_id < PIPELINE_TABLES){
+    if (table_id < pl->num_tables){
            goto loop;
     }
     free(features);
@@ -550,10 +566,13 @@ pipeline_handle_stats_request_aggregate(struct pipeline *pl,
               .byte_count   = 0,
               .flow_count   = 0};
 
-    if (msg->table_id == 0xff) {
+    if(msg->table_id >= pl->num_tables && msg->table_id != OFPTT_ALL)
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
+
+    if (msg->table_id == OFPTT_ALL) {
         size_t i;
 
-        for (i=0; i<PIPELINE_TABLES; i++) {
+        for (i = 0; i < pl->num_tables; i++) {
             flow_table_aggregate_stats(pl->tables[i], msg,
                                        &reply.packet_count, &reply.byte_count, &reply.flow_count);
         }
@@ -573,9 +592,9 @@ pipeline_handle_stats_request_aggregate(struct pipeline *pl,
 void
 pipeline_destroy(struct pipeline *pl) {
     struct flow_table *table;
-    int i;
+    size_t i;
 
-    for (i=0; i<PIPELINE_TABLES; i++) {
+    for (i = 0; i < pl->num_tables; i++) {
         table = pl->tables[i];
         if (table != NULL) {
             flow_table_destroy(table);
@@ -587,9 +606,9 @@ pipeline_destroy(struct pipeline *pl) {
 
 void
 pipeline_timeout(struct pipeline *pl) {
-    int i;
+    size_t i;
 
-    for (i = 0; i < PIPELINE_TABLES; i++) {
+    for (i = 0; i < pl->num_tables; i++) {
         flow_table_timeout(pl->tables[i]);
     }
 }
