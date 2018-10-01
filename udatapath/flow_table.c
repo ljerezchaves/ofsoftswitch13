@@ -272,7 +272,7 @@ flow_table_timeout(struct flow_table *table) {
 static void 
 flow_table_create_property(struct pipeline *pl, struct ofl_table_feature_prop_header **prop,
                            enum ofp_table_feature_prop_type type, uint8_t table_id){
-
+ 
     switch(type){
         case OFPTFPT_INSTRUCTIONS:
         case OFPTFPT_INSTRUCTIONS_MISS:{
