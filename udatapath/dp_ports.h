@@ -109,7 +109,7 @@ struct hw_pkt_q_entry {
 };
 #endif
 
-#define DP_MAX_PORTS 255
+#define DP_MAX_PORTS 4096
 BUILD_ASSERT_DECL(DP_MAX_PORTS <= OFPP_MAX);
 
 
