@@ -74,7 +74,7 @@ enum netdev_link_state {
     NETDEV_LINK_NO_CHANGE = 3
 };
 
-#define NETDEV_MAX_QUEUES 8
+#define NETDEV_MAX_QUEUES 32
 
 
 
