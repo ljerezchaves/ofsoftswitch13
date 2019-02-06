@@ -223,7 +223,7 @@ packet_handle_std_validate(struct packet_handle_std *handle) {
 
                 if (ntohs(proto->arp->ar_op) <= 0xff) {
                     ofl_structs_match_put16(m, OXM_OF_ARP_OP,
-                                                proto->arp->ar_op);
+                                                ntohs(proto->arp->ar_op));
                 }
                 if (ntohs(proto->arp->ar_op) == ARP_OP_REQUEST ||
                     ntohs(proto->arp->ar_op) == ARP_OP_REPLY) {
