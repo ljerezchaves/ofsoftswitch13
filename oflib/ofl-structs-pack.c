@@ -935,8 +935,10 @@ ofl_structs_match_pack(struct ofl_match_header *src, struct ofp_match *dst, uint
                 dst->length = htons(oxm_len + ((sizeof(struct ofp_match )-4)));
                 ofpbuf_delete(b);
                 return ntohs(dst->length);
+            } else {
+                ofpbuf_delete(b);
+                return 0;    
             }
-            else return 0;
         }
         default: {
             if (exp == NULL || exp->match == NULL || exp->match->pack == NULL) {
