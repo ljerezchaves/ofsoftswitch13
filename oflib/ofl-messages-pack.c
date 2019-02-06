@@ -55,7 +55,7 @@ ofl_msg_pack_error(struct ofl_msg_error *msg, uint8_t **buf, size_t *buf_len) {
     struct ofp_error_msg *err;
 
     *buf_len = sizeof(struct ofp_error_msg) + msg->data_length;
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     err = (struct ofp_error_msg *)(*buf);
     err->type = htons(msg->type);
@@ -69,7 +69,7 @@ ofl_msg_pack_echo(struct ofl_msg_echo *msg, uint8_t **buf, size_t *buf_len) {
     uint8_t *data;
 
     *buf_len = sizeof(struct ofp_header) + msg->data_length;
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     if (msg->data_length > 0) {
         data = (*buf) + sizeof(struct ofp_header);
@@ -83,7 +83,7 @@ ofl_msg_pack_role_request(struct ofl_msg_role_request *msg, uint8_t **buf, size_
         struct ofp_role_request *req;
 
         *buf_len = sizeof(struct ofp_role_request);
-        *buf     = (uint8_t *)malloc(*buf_len);
+        *buf     = (uint8_t *)calloc(1, *buf_len);
 
         req = (struct ofp_role_request *)(*buf);
         req->role =  htonl(msg->role);
@@ -98,7 +98,7 @@ ofl_msg_pack_features_reply(struct ofl_msg_features_reply *msg, uint8_t **buf, s
     struct ofp_switch_features *features;
 
     *buf_len = sizeof(struct ofp_switch_features);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     features = (struct ofp_switch_features *)(*buf);
     features->datapath_id  = hton64(msg->datapath_id);
@@ -117,7 +117,7 @@ ofl_msg_pack_get_config_reply(struct ofl_msg_get_config_reply *msg, uint8_t **bu
     struct ofp_switch_config *config;
 
     *buf_len = sizeof(struct ofp_switch_config);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     config = (struct ofp_switch_config *)(*buf);
     config->flags         = htons(msg->config->flags);
@@ -131,7 +131,7 @@ ofl_msg_pack_set_config(struct ofl_msg_set_config *msg, uint8_t **buf, size_t *b
     struct ofp_switch_config *config;
 
     *buf_len = sizeof(struct ofp_switch_config);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     config = (struct ofp_switch_config *)(*buf);
     config->miss_send_len = htons(msg->config->miss_send_len);
@@ -146,7 +146,7 @@ ofl_msg_pack_packet_in(struct ofl_msg_packet_in *msg, uint8_t **buf, size_t *buf
     uint8_t *ptr;
 
     *buf_len = sizeof(struct ofp_packet_in) + ROUND_UP(msg->match->length - 4 ,8) + msg->data_length + 2;
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
     packet_in = (struct ofp_packet_in *)(*buf);
     packet_in->buffer_id   = htonl(msg->buffer_id);
     packet_in->total_len   = htons(msg->total_len);
@@ -174,7 +174,7 @@ ofl_msg_pack_flow_removed(struct ofl_msg_flow_removed *msg, uint8_t **buf, size_
 
     uint8_t *ptr;
     *buf_len = ROUND_UP((sizeof(struct ofp_flow_removed) -4) + msg->stats->match->length ,8);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     ofr = (struct ofp_flow_removed *)(*buf);
     ofr->cookie        = hton64(msg->stats->cookie);
@@ -199,7 +199,7 @@ ofl_msg_pack_port_status(struct ofl_msg_port_status *msg, uint8_t **buf, size_t 
     struct ofp_port_status *status;
 
     *buf_len = sizeof(struct ofp_port_status);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     status = (struct ofp_port_status *)(*buf);
     status->reason = msg->reason;
@@ -220,7 +220,7 @@ ofl_msg_pack_packet_out(struct ofl_msg_packet_out *msg, uint8_t **buf, size_t *b
     act_len = ofl_actions_ofp_total_len(msg->actions, msg->actions_num, exp);
 
     *buf_len = sizeof(struct ofp_packet_out) + act_len + msg->data_length;
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     packet_out = (struct ofp_packet_out *)(*buf);
     packet_out->buffer_id   = htonl(msg->buffer_id);
@@ -251,7 +251,7 @@ ofl_msg_pack_flow_mod(struct ofl_msg_flow_mod *msg, uint8_t **buf, size_t *buf_l
     *buf_len = ROUND_UP(sizeof(struct ofp_flow_mod)- 4 + msg->match->length,8) +
                 ofl_structs_instructions_ofp_total_len(msg->instructions, msg->instructions_num, exp);
 
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
     flow_mod = (struct ofp_flow_mod *)(*buf);
     flow_mod->cookie       = hton64(msg->cookie);
     flow_mod->cookie_mask  = hton64(msg->cookie_mask);
@@ -283,7 +283,7 @@ ofl_msg_pack_group_mod(struct ofl_msg_group_mod *msg, uint8_t **buf, size_t *buf
     int i;
 
     *buf_len = sizeof(struct ofp_group_mod) + ofl_structs_buckets_ofp_total_len(msg->buckets, msg->buckets_num, exp);;
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     group_mod = (struct ofp_group_mod *)(*buf);
     group_mod->command  = htons(msg->command);
@@ -305,7 +305,7 @@ ofl_msg_pack_port_mod(struct ofl_msg_port_mod *msg, uint8_t **buf, size_t *buf_l
     struct ofp_port_mod *port_mod;
 
     *buf_len = sizeof(struct ofp_port_mod);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     port_mod = (struct ofp_port_mod *)(*buf);
     port_mod->port_no   = htonl(msg->port_no);
@@ -325,7 +325,7 @@ ofl_msg_pack_table_mod(struct ofl_msg_table_mod *msg, uint8_t **buf, size_t *buf
     struct ofp_table_mod *table_mod;
 
     *buf_len = sizeof(struct ofp_table_mod);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     table_mod = (struct ofp_table_mod *)(*buf);
     table_mod->table_id =       msg->table_id;
@@ -342,7 +342,7 @@ ofl_msg_pack_meter_mod(struct ofl_msg_meter_mod *msg, uint8_t ** buf, size_t *bu
     int i;
 
     *buf_len =  sizeof(struct ofp_meter_mod) + ofl_structs_meter_bands_ofp_total_len(msg->bands, msg->meter_bands_num);
-    *buf = malloc(*buf_len);
+    *buf = calloc(1, *buf_len);
 
     meter_mod = (struct ofp_meter_mod*) (*buf);
     meter_mod->command = htons(msg->command);
@@ -361,7 +361,7 @@ ofl_msg_pack_async_config(struct ofl_msg_async_config *msg, uint8_t **buf, size_
     struct ofp_async_config *ac;
     int i;
     *buf_len = sizeof(struct ofp_async_config);
-    *buf = malloc(*buf_len);
+    *buf = calloc(1, *buf_len);
 
     ac = (struct ofp_async_config*)(*buf);
     for(i = 0; i < 2; i++){
@@ -380,7 +380,7 @@ ofl_msg_pack_multipart_request_flow(struct ofl_msg_multipart_request_flow *msg, 
     uint8_t *ptr;
 
     *buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_flow_stats_request) + msg->match->length;
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     req = (struct ofp_multipart_request *)(*buf);
     stats = (struct ofp_flow_stats_request *)req->body;
@@ -404,7 +404,7 @@ ofl_msg_pack_multipart_request_port(struct ofl_msg_multipart_request_port *msg, 
     struct ofp_port_stats_request *stats;
 
     *buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_port_stats_request);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     req = (struct ofp_multipart_request *)(*buf);
     stats = (struct ofp_port_stats_request *)req->body;
@@ -420,7 +420,7 @@ ofl_msg_pack_multipart_request_queue(struct ofl_msg_multipart_request_queue *msg
     struct ofp_queue_stats_request *stats;
 
     *buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_queue_stats_request);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     req = (struct ofp_multipart_request *)(*buf);
     stats = (struct ofp_queue_stats_request *)req->body;
@@ -436,7 +436,7 @@ ofl_msg_pack_multipart_request_group(struct ofl_msg_multipart_request_group *msg
     struct ofp_group_stats_request *stats;
 
     *buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_group_stats_request);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     req = (struct ofp_multipart_request *)(*buf);
     stats = (struct ofp_group_stats_request *)req->body;
@@ -454,7 +454,7 @@ ofl_msg_pack_multipart_request_table_features(struct ofl_msg_multipart_request_t
 
     features_len = ofl_structs_table_features_ofp_total_len(msg->table_features, msg->tables_num, exp);
     *buf_len = sizeof(struct ofp_multipart_request) + features_len;
-    *buf = (uint8_t*) malloc(*buf_len);
+    *buf = (uint8_t*) calloc(1, *buf_len);
 
     req = (struct ofp_multipart_request*) (*buf);
 
@@ -474,7 +474,7 @@ ofl_msg_pack_meter_multipart_request(struct ofl_msg_multipart_meter_request *msg
     struct ofp_meter_multipart_request *stats;
 
     *buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_meter_multipart_request);
-    *buf = (uint8_t*) malloc(*buf_len);
+    *buf = (uint8_t*) calloc(1, *buf_len);
 
     req = (struct ofp_multipart_request*) (*buf);
     stats = (struct ofp_meter_multipart_request*) req->body;
@@ -488,7 +488,7 @@ static int
 ofl_msg_pack_multipart_request_empty(struct ofl_msg_multipart_request_header *msg UNUSED, uint8_t **buf, size_t *buf_len) {
 
     *buf_len = sizeof(struct ofp_multipart_request);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     return 0;
 }
@@ -585,7 +585,7 @@ ofl_msg_pack_multipart_reply_desc(struct ofl_msg_reply_desc *msg UNUSED, uint8_t
     struct ofp_desc *stats;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + sizeof(struct ofp_desc);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     req = (struct ofp_multipart_reply *)(*buf);
     stats = (struct ofp_desc *)req->body;
@@ -610,7 +610,7 @@ ofl_msg_pack_multipart_reply_flow(struct ofl_msg_multipart_reply_flow *msg, uint
     uint8_t * data;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_flow_stats_ofp_total_len(msg->stats, msg->stats_num, exp);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t*) resp->body;
     for (i=0; i<msg->stats_num; i++) {
@@ -625,7 +625,7 @@ ofl_msg_pack_multipart_reply_aggregate(struct ofl_msg_multipart_reply_aggregate 
     struct ofp_aggregate_stats_reply *stats;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + sizeof(struct ofp_aggregate_stats_reply);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     stats = (struct ofp_aggregate_stats_reply *)resp->body;
@@ -644,7 +644,7 @@ ofl_msg_pack_multipart_reply_table(struct ofl_msg_multipart_reply_table *msg, ui
     uint8_t *data;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + msg->stats_num * sizeof(struct ofp_table_stats);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -662,7 +662,7 @@ ofl_msg_pack_multipart_reply_port(struct ofl_msg_multipart_reply_port *msg, uint
     uint8_t *data;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + msg->stats_num * sizeof(struct ofp_port_stats);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -681,7 +681,7 @@ ofl_msg_pack_multipart_reply_queue(struct ofl_msg_multipart_reply_queue *msg, ui
     uint8_t *data;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + msg->stats_num * sizeof(struct ofp_queue_stats);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -699,7 +699,7 @@ ofl_msg_pack_multipart_reply_group(struct ofl_msg_multipart_reply_group *msg, ui
     uint8_t *data;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_group_stats_ofp_total_len(msg->stats, msg->stats_num);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -717,7 +717,7 @@ ofl_msg_pack_multipart_reply_group_desc(struct ofl_msg_multipart_reply_group_des
     size_t i;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_group_desc_stats_ofp_total_len(msg->stats, msg->stats_num, exp);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -735,7 +735,7 @@ ofl_msg_pack_multipart_reply_group_features(struct ofl_msg_multipart_reply_group
     struct ofp_group_features *stats;
     int i;
     *buf_len = sizeof(struct ofp_multipart_reply) + sizeof(struct ofp_group_features);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     stats = (struct ofp_group_features *)resp->body;
@@ -757,7 +757,7 @@ ofl_msg_pack_multipart_reply_table_features(struct ofl_msg_multipart_reply_table
 
     features_len = ofl_structs_table_features_ofp_total_len(msg->table_features, msg->tables_num, exp);
     *buf_len = sizeof(struct ofp_multipart_reply) + features_len;
-    *buf = (uint8_t*) malloc(*buf_len);
+    *buf = (uint8_t*) calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply*) (*buf);
     if (features_len){
@@ -776,7 +776,7 @@ ofl_msg_pack_multipart_reply_meter_stats(struct ofl_msg_multipart_reply_meter *m
     uint8_t *data;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_meter_stats_ofp_total_len(msg->stats, msg->stats_num);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -794,7 +794,7 @@ ofl_msg_pack_multipart_reply_meter_conf(struct ofl_msg_multipart_reply_meter_con
     uint8_t *data;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_meter_conf_ofp_total_len(msg->stats, msg->stats_num);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -813,7 +813,7 @@ ofl_msg_pack_multipart_reply_port_status_desc(struct ofl_msg_multipart_reply_por
 	uint8_t *data;
 	size_t i;
     *buf_len = sizeof(struct ofp_multipart_reply) + msg->stats_num * sizeof(struct ofp_port);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
 	resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
@@ -831,7 +831,7 @@ ofl_msg_pack_multipart_reply_meter_features(struct ofl_msg_multipart_reply_meter
     struct ofp_meter_features *feat;
 
     *buf_len = sizeof(struct ofp_multipart_reply) + sizeof(struct ofp_meter_features);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
     resp = (struct ofp_multipart_reply *)(*buf);
     feat = (struct ofp_meter_features *)resp->body;
     feat->max_meter = htonl(msg->features->max_meter);
@@ -937,7 +937,7 @@ ofl_msg_pack_queue_get_config_request(struct ofl_msg_queue_get_config_request *m
     struct ofp_queue_get_config_request *req;
 
     *buf_len = sizeof(struct ofp_queue_get_config_request);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     req = (struct ofp_queue_get_config_request *)(*buf);
     req->port = htonl(msg->port);
@@ -953,7 +953,7 @@ ofl_msg_pack_queue_get_config_reply(struct ofl_msg_queue_get_config_reply *msg, 
     size_t i;
 
     *buf_len = sizeof(struct ofp_queue_get_config_reply) + ofl_structs_packet_queue_ofp_total_len(msg->queues, msg->queues_num);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
 
     resp = (struct ofp_queue_get_config_reply *)(*buf);
     resp->port = htonl(msg->port);
@@ -972,7 +972,7 @@ static int
 ofl_msg_pack_empty(struct ofl_msg_header *msg UNUSED, uint8_t **buf, size_t *buf_len) {
 
     *buf_len = sizeof(struct ofp_header);
-    *buf     = (uint8_t *)malloc(*buf_len);
+    *buf     = (uint8_t *)calloc(1, *buf_len);
     return 0;
 }
 
