@@ -54,7 +54,7 @@ ofl_exp_nicira_msg_pack(struct ofl_msg_experimenter *msg, uint8_t **buf, size_t 
                 struct nx_role_request *ofp;
 
                 *buf_len = sizeof(struct nx_role_request);
-                *buf     = (uint8_t *)malloc(*buf_len);
+                *buf     = (uint8_t *)calloc(1, *buf_len);
 
                 ofp = (struct nx_role_request *)(*buf);
                 ofp->nxh.vendor =  htonl(exp->header.experimenter_id);

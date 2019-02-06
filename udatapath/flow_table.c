@@ -355,6 +355,63 @@ flow_table_create_property(struct pipeline *pl, struct ofl_table_feature_prop_he
     }
 }
 
+static void 
+flow_table_destroy_property(struct ofl_table_feature_prop_header **prop,
+                            enum ofp_table_feature_prop_type type) {
+    switch(type){
+        case OFPTFPT_INSTRUCTIONS:
+        case OFPTFPT_INSTRUCTIONS_MISS:{
+            struct ofl_table_feature_prop_instructions *inst_capabilities;
+            inst_capabilities = (struct ofl_table_feature_prop_instructions*)(*prop);
+            free(inst_capabilities->instruction_ids);
+            free (inst_capabilities);
+            break;        
+        }
+        case OFPTFPT_NEXT_TABLES:
+        case OFPTFPT_NEXT_TABLES_MISS:{
+             struct ofl_table_feature_prop_next_tables *tbl_reachable;
+             tbl_reachable = (struct ofl_table_feature_prop_next_tables*)(*prop);
+             if (tbl_reachable->table_num > 0) {
+                free (tbl_reachable->next_table_ids);
+             }
+             free(tbl_reachable);
+             break;
+        }
+        case OFPTFPT_APPLY_ACTIONS:
+        case OFPTFPT_APPLY_ACTIONS_MISS:
+        case OFPTFPT_WRITE_ACTIONS:
+        case OFPTFPT_WRITE_ACTIONS_MISS:{
+             struct ofl_table_feature_prop_actions *act_capabilities;
+             act_capabilities = (struct ofl_table_feature_prop_actions*)(*prop);
+             free(act_capabilities->action_ids);
+             free(act_capabilities);
+             break;
+        }
+        case OFPTFPT_MATCH:
+        case OFPTFPT_APPLY_SETFIELD:
+        case OFPTFPT_APPLY_SETFIELD_MISS:
+        case OFPTFPT_WRITE_SETFIELD:
+        case OFPTFPT_WRITE_SETFIELD_MISS:{
+            struct ofl_table_feature_prop_oxm *oxm_capabilities; 
+            oxm_capabilities = (struct ofl_table_feature_prop_oxm*)(*prop);
+            free(oxm_capabilities->oxm_ids);
+            free(oxm_capabilities);
+            break;
+        }  
+        case OFPTFPT_WILDCARDS:{
+            struct ofl_table_feature_prop_oxm *oxm_capabilities;
+            oxm_capabilities = (struct ofl_table_feature_prop_oxm*)(*prop);
+            free(oxm_capabilities->oxm_ids);
+            free(oxm_capabilities);
+            break;
+        }        
+        case OFPTFPT_EXPERIMENTER:
+        case OFPTFPT_EXPERIMENTER_MISS:{
+            break;        
+        }        
+    }
+}
+
 static int
 flow_table_features(struct pipeline *pl, struct ofl_table_features *features){
 
@@ -416,9 +473,21 @@ void
 flow_table_destroy(struct flow_table *table) {
     struct flow_entry *entry, *next;
 
+    int type, j;
     LIST_FOR_EACH_SAFE (entry, next, struct flow_entry, match_node, &table->match_entries) {
         flow_entry_destroy(entry);
     }
+
+    j = 0;
+    for(type = OFPTFPT_INSTRUCTIONS; type <= OFPTFPT_APPLY_SETFIELD_MISS; type++){ 
+        flow_table_destroy_property(&table->features->properties[j], type);
+        if(type == OFPTFPT_MATCH || type == OFPTFPT_WILDCARDS){
+            type++;
+        }
+        j++;
+    }
+    free(table->features->name);
+    free(table->features->properties);
     free(table->features);
     free(table->stats);
     free(table);
