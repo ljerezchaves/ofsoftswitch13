@@ -532,412 +532,446 @@ monitor(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 }
 
 static void
-table_features(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
-    struct ofl_msg_multipart_request_table_features req =
-        {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_TABLE_FEATURES, .flags = 0x0000},
-             .tables_num = 0,
-             .table_features = NULL,
-          };
+table_features (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_multipart_request_table_features *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_table_features));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_TABLE_FEATURES;
+    msg->header.flags = 0x0000;
+    msg->tables_num = 0;
+    msg->table_features = NULL;
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
-}
-
-
-static void
-features(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
-    struct ofl_msg_header req =
-            {.type = OFPT_FEATURES_REQUEST};
-
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-get_config(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
-    struct ofl_msg_header req =
-            {.type = OFPT_GET_CONFIG_REQUEST};
+features (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_header *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_header));
+    msg->type = OFPT_FEATURES_REQUEST;
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
-}
-
-
-
-static void
-stats_desc(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
-    struct ofl_msg_multipart_request_header req =
-            {{.type = OFPT_MULTIPART_REQUEST},
-             .type = OFPMP_DESC, .flags = 0x0000};
-
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-port_desc(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
-    struct ofl_msg_multipart_request_header req =
-            {{.type = OFPT_MULTIPART_REQUEST},
-             .type = OFPMP_PORT_DESC, .flags = 0x0000};
+get_config (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_header *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_header));
+    msg->type = OFPT_GET_CONFIG_REQUEST;
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-stats_flow(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_multipart_request_flow req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_FLOW, .flags = 0x0000},
-             .cookie = 0x0000000000000000ULL,
-             .cookie_mask = 0x0000000000000000ULL,
-             .table_id = 0xff,
-             .out_port = OFPP_ANY,
-             .out_group = OFPG_ANY,
-             .match = NULL};
-    if (argc > 0) {
-        parse_flow_stat_args(argv[0], &req);
-    }
-    if (argc > 1) {
-        parse_match(argv[1], &(req.match));
-    } else {
-        make_all_match(&(req.match));
-    }
+stats_desc (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_multipart_request_header *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_header));
+    msg->header.type = OFPT_MULTIPART_REQUEST;
+    msg->type = OFPMP_DESC;
+    msg->flags = 0x0000;
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-stats_aggr(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_multipart_request_flow req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_AGGREGATE, .flags = 0x0000},
-             .cookie = 0x0000000000000000ULL,
-             .cookie_mask = 0x0000000000000000ULL,
-             .table_id = 0xff,
-             .out_port = OFPP_ANY,
-             .out_group = OFPG_ANY,
-             .match = NULL};
+port_desc (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_multipart_request_header *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_header));
+    msg->header.type = OFPT_MULTIPART_REQUEST;
+    msg->type = OFPMP_PORT_DESC;
+    msg->flags = 0x0000;
+
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
+
+static void
+stats_flow (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_flow *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_flow));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_FLOW;
+    msg->header.flags = 0x0000;
+    msg->cookie = 0x0000000000000000ULL;
+    msg->cookie_mask = 0x0000000000000000ULL;
+    msg->table_id = 0xff;
+    msg->out_port = OFPP_ANY;
+    msg->out_group = OFPG_ANY;
+    msg->match = NULL;
 
     if (argc > 0) {
-        parse_flow_stat_args(argv[0], &req);
+        parse_flow_stat_args (argv[0], msg);
     }
+
     if (argc > 1) {
-        parse_match(argv[1], &(req.match));
+        parse_match (argv[1], &(msg->match));
     } else {
-        make_all_match(&(req.match));
+        make_all_match (&(msg->match));
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-stats_table(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
-    struct ofl_msg_multipart_request_header req =
-            {{.type = OFPT_MULTIPART_REQUEST},
-             .type = OFPMP_TABLE, .flags = 0x0000};
+stats_aggr (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_flow *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_flow));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_AGGREGATE;
+    msg->header.flags = 0x0000;
+    msg->cookie = 0x0000000000000000ULL;
+    msg->cookie_mask = 0x0000000000000000ULL;
+    msg->table_id = 0xff;
+    msg->out_port = OFPP_ANY;
+    msg->out_group = OFPG_ANY;
+    msg->match = NULL;
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
-}
-
-
-
-static void
-stats_port(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_multipart_request_port req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_PORT_STATS, .flags = 0x0000},
-             .port_no = OFPP_ANY};
-
-    if (argc > 0 && parse_port(argv[0], &req.port_no)) {
-        ofp_fatal(0, "Error parsing port: %s.", argv[0]);
+    if (argc > 0) {
+        parse_flow_stat_args (argv[0], msg);
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
-}
-
-
-
-static void
-stats_queue(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_multipart_request_queue req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_QUEUE, .flags = 0x0000},
-             .port_no = OFPP_ANY,
-             .queue_id = OFPQ_ALL};
-
-    if (argc > 0 && parse_port(argv[0], &req.port_no)) {
-        ofp_fatal(0, "Error parsing port: %s.", argv[0]);
-    }
-    if (argc > 1 && parse_queue(argv[1], &req.queue_id)) {
-        ofp_fatal(0, "Error parsing queue: %s.", argv[1]);
+    if (argc > 1) {
+        parse_match (argv[1], &(msg->match));
+    } else {
+        make_all_match (&(msg->match));
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
+static void
+stats_table (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_multipart_request_header *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_header));
+    msg->header.type = OFPT_MULTIPART_REQUEST;
+    msg->type = OFPMP_TABLE;
+    msg->flags = 0x0000;
 
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
 
 static void
-stats_group(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_multipart_request_group req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_GROUP, .flags = 0x0000},
-             .group_id = OFPG_ALL};
+stats_port (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_port *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_port));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_PORT_STATS;
+    msg->header.flags = 0x0000;
+    msg->port_no = OFPP_ANY;
 
-    if (argc > 0 && parse_group(argv[0], &req.group_id)) {
-        ofp_fatal(0, "Error parsing group: %s.", argv[0]);
+    if (argc > 0 && parse_port (argv[0], &(msg->port_no))) {
+        ofp_fatal (0, "Error parsing port: %s.", argv[0]);
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
-
-
 static void
-stats_group_desc(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_multipart_request_group req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_GROUP_DESC, .flags = 0x0000},
-             .group_id = OFPG_ALL};
+stats_queue (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_queue *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_queue));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_QUEUE;
+    msg->header.flags = 0x0000;
+    msg->port_no = OFPP_ANY;
+    msg->queue_id = OFPQ_ALL;
 
-    if (argc > 0 && parse_group(argv[0], &req.group_id)) {
-        ofp_fatal(0, "Error parsing group: %s.", argv[0]);
+    if (argc > 0 && parse_port (argv[0], &(msg->port_no))) {
+        ofp_fatal (0, "Error parsing port: %s.", argv[0]);
+    }
+    if (argc > 1 && parse_queue (argv[1], &(msg->queue_id))) {
+        ofp_fatal (0, "Error parsing queue: %s.", argv[1]);
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-set_config(struct vconn *vconn, int argc UNUSED, char *argv[]) {
-    struct ofl_msg_set_config msg =
-            {{.type = OFPT_SET_CONFIG},
-             .config = NULL};
+stats_group (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_group *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_group));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_GROUP;
+    msg->header.flags = 0x0000;
+    msg->group_id = OFPG_ALL;
 
-    msg.config = xmalloc(sizeof(struct ofl_config));
-    msg.config->flags = OFPC_FRAG_NORMAL;
-    msg.config->miss_send_len = OFP_DEFAULT_MISS_SEND_LEN;
+    if (argc > 0 && parse_group (argv[0], &(msg->group_id))) {
+        ofp_fatal (0, "Error parsing group: %s.", argv[0]);
+    }
 
-    parse_config(argv[0], msg.config);
-
-    dpctl_send_and_print(vconn, (struct ofl_msg_header *)&msg);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
+static void
+stats_group_desc (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_group *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_group));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_GROUP_DESC;
+    msg->header.flags = 0x0000;
+    msg->group_id = OFPG_ALL;
 
+    if (argc > 0 && parse_group (argv[0], &(msg->group_id))) {
+        ofp_fatal (0, "Error parsing group: %s.", argv[0]);
+    }
+
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
 
 static void
-flow_mod(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_flow_mod msg =
-            {{.type = OFPT_FLOW_MOD},
-             .cookie = 0x0000000000000000ULL,
-             .cookie_mask = 0x0000000000000000ULL,
-             .table_id = 0xff,
-             .command = OFPFC_ADD,
-             .idle_timeout = OFP_FLOW_PERMANENT,
-             .hard_timeout = OFP_FLOW_PERMANENT,
-             .priority = OFP_DEFAULT_PRIORITY,
-             .buffer_id = 0xffffffff,
-             .out_port = OFPP_ANY,
-             .out_group = OFPG_ANY,
-             .flags = 0x0000,
-             .match = NULL,
-             .instructions_num = 0,
-             .instructions = NULL};
+set_config (struct vconn *vconn, int argc UNUSED, char *argv[]) {
+    struct ofl_msg_set_config *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_set_config));
+    msg->header.type = OFPT_SET_CONFIG;
+    msg->config = xmalloc (sizeof (struct ofl_config));
+    msg->config->flags = OFPC_FRAG_NORMAL;
+    msg->config->miss_send_len = OFP_DEFAULT_MISS_SEND_LEN;
 
-    parse_flow_mod_args(argv[0], &msg);
+    parse_config (argv[0], msg->config);
+
+    dpctl_send_and_print (vconn, (struct ofl_msg_header *)msg);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
+
+static void
+flow_mod (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_flow_mod *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_flow_mod));
+    msg->header.type = OFPT_FLOW_MOD;
+    msg->cookie = 0x0000000000000000ULL;
+    msg->cookie_mask = 0x0000000000000000ULL;
+    msg->table_id = 0xff;
+    msg->command = OFPFC_ADD;
+    msg->idle_timeout = OFP_FLOW_PERMANENT;
+    msg->hard_timeout = OFP_FLOW_PERMANENT;
+    msg->priority = OFP_DEFAULT_PRIORITY;
+    msg->buffer_id = 0xffffffff;
+    msg->out_port = OFPP_ANY;
+    msg->out_group = OFPG_ANY;
+    msg->flags = 0x0000;
+    msg->match = NULL;
+    msg->instructions_num = 0;
+    msg->instructions = NULL;
+
+    parse_flow_mod_args (argv[0], msg);
+
     if (argc > 1) {
         size_t i, j;
         size_t inst_num = 0;
-        if (argc > 2){
+        if (argc > 2) {
             inst_num = argc - 2;
             j = 2;
-            parse_match(argv[1], &(msg.match));
-        }
-        else {
-            if(msg.command == OFPFC_DELETE) {
+            parse_match (argv[1], &(msg->match));
+        } else {
+            if (msg->command == OFPFC_DELETE) {
                 inst_num = 0;
-                parse_match(argv[1], &(msg.match));
+                parse_match (argv[1], &(msg->match));
             } else {
-                /*We copy the value because we don't know if
-                it is an instruction or match.
-                If the match is empty, the argv is modified
-                causing errors to instructions parsing*/
-                char *cpy = malloc(strlen(argv[1])+1);
-                memcpy(cpy, argv[1], strlen(argv[1]) + 1); 
-                parse_match(cpy, &(msg.match));
-                free(cpy);
-                if(msg.match->length <= 4){
+                /* We copy the value because we don't know if it is an
+                instruction or match. If the match is empty, the argv is
+                modified causing errors to instructions parsing */
+                char *cpy = malloc (strlen (argv[1]) + 1);
+                memcpy (cpy, argv[1], strlen (argv[1]) + 1); 
+                parse_match (cpy, &(msg->match));
+                free (cpy);
+                if (msg->match->length <= 4) {
                     inst_num = argc - 1;
                     j = 1;
                 }
             }
         }
 
-        msg.instructions_num = inst_num;
-        msg.instructions = xmalloc(sizeof(struct ofl_instruction_header *) * inst_num);
-        for (i=0; i < inst_num; i++) {
-            parse_inst(argv[j+i], &(msg.instructions[i]));
+        msg->instructions_num = inst_num;
+        msg->instructions = xmalloc (sizeof (struct ofl_instruction_header *) * inst_num);
+        for (i = 0; i < inst_num; i++) {
+            parse_inst (argv[j + i], &(msg->instructions[i]));
         }
     } else {
-        make_all_match(&(msg.match));
+        make_all_match (&(msg->match));
     }
-    dpctl_send_and_print(vconn, (struct ofl_msg_header *)&msg);
+
+    dpctl_send_and_print (vconn, (struct ofl_msg_header *)msg);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
-
 static void
-group_mod(struct vconn *vconn, int argc, char *argv[]) {
-    struct ofl_msg_group_mod msg =
-            {{.type = OFPT_GROUP_MOD},
-             .command  = OFPGC_ADD,
-             .type     = OFPGT_ALL,
-             .group_id = OFPG_ALL,
-             .buckets_num = 0,
-             .buckets = NULL};
+group_mod (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_group_mod *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_group_mod));
+    msg->header.type = OFPT_GROUP_MOD;
+    msg->command = OFPGC_ADD;
+    msg->type = OFPGT_ALL;
+    msg->group_id = OFPG_ALL;
+    msg->buckets_num = 0;
+    msg->buckets = NULL;
 
-    parse_group_mod_args(argv[0], &msg);
+    parse_group_mod_args (argv[0], msg);
 
     if (argc > 1) {
         size_t i;
         size_t buckets_num = (argc - 1) / 2;
 
-        msg.buckets_num = buckets_num;
-        msg.buckets = xmalloc(sizeof(struct ofl_bucket *) * buckets_num);
+        msg->buckets_num = buckets_num;
+        msg->buckets = xmalloc (sizeof (struct ofl_bucket *) * buckets_num);
 
-        for (i=0; i < buckets_num; i++) {
-            msg.buckets[i] = xmalloc(sizeof(struct ofl_bucket));
-            msg.buckets[i]->weight = 0;
-            msg.buckets[i]->watch_port = OFPP_ANY;
-            msg.buckets[i]->watch_group = OFPG_ANY;
-            msg.buckets[i]->actions_num = 0;
-            msg.buckets[i]->actions = NULL;
+        for (i = 0; i < buckets_num; i++) {
+            msg->buckets[i] = xmalloc (sizeof (struct ofl_bucket));
+            msg->buckets[i]->weight = 0;
+            msg->buckets[i]->watch_port = OFPP_ANY;
+            msg->buckets[i]->watch_group = OFPG_ANY;
+            msg->buckets[i]->actions_num = 0;
+            msg->buckets[i]->actions = NULL;
 
-            parse_bucket(argv[i*2+1], msg.buckets[i]);
-            parse_actions(argv[i*2+2], &(msg.buckets[i]->actions_num), &(msg.buckets[i]->actions));
+            parse_bucket (argv[i * 2 + 1], msg->buckets[i]);
+            parse_actions (argv[i * 2 + 2], &(msg->buckets[i]->actions_num), &(msg->buckets[i]->actions));
         }
     }
 
-    dpctl_send_and_print(vconn, (struct ofl_msg_header *)&msg);
+    dpctl_send_and_print (vconn, (struct ofl_msg_header *)msg);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-group_features(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED){
+group_features (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_multipart_request_header *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_header));
+    msg->header.type = OFPT_MULTIPART_REQUEST;
+    msg->type = OFPMP_GROUP_FEATURES;
+    msg->flags = 0x0000;
 
-    struct ofl_msg_multipart_request_header req =
-            {{.type = OFPT_MULTIPART_REQUEST},
-             .type = OFPMP_GROUP_FEATURES, .flags = 0x0000};
-
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
-static void meter_mod(struct vconn *vconn, int argc, char *argv[]){
+static void
+meter_mod (struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_meter_mod *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_meter_mod));
+    msg->header.type = OFPT_METER_MOD;
+    msg->command = OFPMC_ADD;
+    msg->flags = OFPMF_KBPS;
+    msg->meter_id = 0;
+    msg->meter_bands_num = 0;
+    msg->bands = NULL;
 
-    struct ofl_msg_meter_mod msg =
-                {{.type = OFPT_METER_MOD},
-                 .command = OFPMC_ADD,
-                 .flags   = OFPMF_KBPS,
-                 .meter_id = 0,
-                 .meter_bands_num = 0,
-                 .bands = NULL};
+    parse_meter_mod_args (argv[0], msg);
 
-   parse_meter_mod_args(argv[0], &msg);
-
-   if (argc > 1){
+    if (argc > 1) {
         size_t i;
         size_t bands_num = argc - 1;
-        msg.meter_bands_num = bands_num;
-        msg.bands = xmalloc(sizeof(struct ofl_meter_band_header *) * bands_num);
-        for (i=0; i < bands_num; i++) {
-            parse_band(argv[i+1], &msg, &msg.bands[i]);
+        msg->meter_bands_num = bands_num;
+        msg->bands = xmalloc (sizeof (struct ofl_meter_band_header *) * bands_num);
+        for (i = 0; i < bands_num; i++) {
+            parse_band (argv[i + 1], msg, &(msg->bands[i]));
         }
-   }
-   dpctl_send_and_print(vconn, (struct ofl_msg_header *)&msg);
-
-}
-
-static void
-stats_meter(struct vconn *vconn, int argc UNUSED, char *argv[]){
-
-    struct ofl_msg_multipart_meter_request req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_METER, .flags = 0x0000},
-             .meter_id = OFPM_ALL};
-
-    if (argc > 0 && parse_meter(argv[0], &req.meter_id)) {
-        ofp_fatal(0, "Error parsing meter: %s.", argv[0]);
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
-
+   dpctl_send_and_print (vconn, (struct ofl_msg_header *)msg);
+   ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-meter_config(struct vconn *vconn, int argc UNUSED, char *argv[]){
+stats_meter (struct vconn *vconn, int argc UNUSED, char *argv[]) {
+    struct ofl_msg_multipart_meter_request *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_meter_request));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_METER;
+    msg->header.flags = 0x0000;
+    msg->meter_id = OFPM_ALL;
 
-    struct ofl_msg_multipart_meter_request req =
-            {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_METER_CONFIG, .flags = 0x0000},
-             .meter_id = OFPM_ALL};
-
-    if (argc > 0 && parse_meter(argv[0], &req.meter_id)) {
-        ofp_fatal(0, "Error parsing meter: %s.", argv[0]);
+    if (argc > 0 && parse_meter (argv[0], &(msg->meter_id))) {
+        ofp_fatal (0, "Error parsing meter: %s.", argv[0]);
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static void
-meter_features(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED){
+meter_config (struct vconn *vconn, int argc UNUSED, char *argv[]) {
+    struct ofl_msg_multipart_meter_request *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_meter_request));
+    msg->header.header.type = OFPT_MULTIPART_REQUEST;
+    msg->header.type = OFPMP_METER_CONFIG;
+    msg->header.flags = 0x0000;
+    msg->meter_id = OFPM_ALL;
 
-    struct ofl_msg_multipart_request_header req =
-            {{.type = OFPT_MULTIPART_REQUEST},
-             .type = OFPMP_METER_FEATURES, .flags = 0x0000};
-
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
-}
-
-static void
-port_mod(struct vconn *vconn, int argc UNUSED, char *argv[]) {
-    struct ofl_msg_port_mod msg =
-            {{.type = OFPT_PORT_MOD},
-             .port_no = OFPP_ANY,
-             .config = 0x00000000,
-             .mask = 0x00000000,
-             .advertise = 0x00000000
-            };
-            memcpy(msg.hw_addr, mask_all, OFP_ETH_ALEN);
-
-    parse_port_mod(argv[0], &msg);
-
-    dpctl_send_and_print(vconn, (struct ofl_msg_header *)&msg);
-}
-
-
-
-static void
-table_mod(struct vconn *vconn, int argc UNUSED, char *argv[]) {
-    struct ofl_msg_table_mod msg =
-            {{.type = OFPT_TABLE_MOD},
-             .table_id = 0xff,
-             .config = 0x00};
-
-    parse_table_mod(argv[0], &msg);
-
-    dpctl_send_and_print(vconn, (struct ofl_msg_header *)&msg);
-}
-
-
-
-static void
-queue_get_config(struct vconn *vconn, int argc UNUSED, char *argv[]) {
-    struct ofl_msg_queue_get_config_request msg =
-            {{.type = OFPT_QUEUE_GET_CONFIG_REQUEST},
-             .port = OFPP_ALL};
-
-    if (parse_port(argv[0], &msg.port)) {
-        ofp_fatal(0, "Error parsing queue_get_config port: %s.", argv[0]);
+    if (argc > 0 && parse_meter (argv[0], &(msg->meter_id))) {
+        ofp_fatal (0, "Error parsing meter: %s.", argv[0]);
     }
 
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&msg, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
+static void
+meter_features (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_multipart_request_header *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_multipart_request_header));
+    msg->header.type = OFPT_MULTIPART_REQUEST;
+    msg->type = OFPMP_METER_FEATURES;
+    msg->flags = 0x0000;
 
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
+
+static void
+port_mod (struct vconn *vconn, int argc UNUSED, char *argv[]) {
+    struct ofl_msg_port_mod *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_port_mod));
+    msg->header.type = OFPT_PORT_MOD;
+    msg->port_no = OFPP_ANY;
+    msg->config = 0x00000000;
+    msg->mask = 0x00000000;
+    msg->advertise = 0x00000000;
+
+    memcpy (msg->hw_addr, mask_all, OFP_ETH_ALEN);
+    parse_port_mod (argv[0], msg);
+
+    dpctl_send_and_print (vconn, (struct ofl_msg_header *)msg);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
+
+static void
+table_mod (struct vconn *vconn, int argc UNUSED, char *argv[]) {
+    struct ofl_msg_table_mod *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_table_mod));
+    msg->header.type = OFPT_TABLE_MOD;
+    msg->table_id = 0xff;
+    msg->config = 0x00;
+
+    parse_table_mod (argv[0], msg);
+
+    dpctl_send_and_print (vconn, (struct ofl_msg_header *)msg);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
+
+static void
+queue_get_config (struct vconn *vconn, int argc UNUSED, char *argv[]) {
+    struct ofl_msg_queue_get_config_request *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_queue_get_config_request));
+    msg->header.type = OFPT_QUEUE_GET_CONFIG_REQUEST;
+    msg->port = OFPP_ALL;
+
+    if (parse_port (argv[0], &(msg->port))) {
+        ofp_fatal (0, "Error parsing queue_get_config port: %s.", argv[0]);
+    }
+
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
+}
 
 static void
 set_desc(struct vconn *vconn, int argc UNUSED, char *argv[]) {
@@ -949,8 +983,6 @@ set_desc(struct vconn *vconn, int argc UNUSED, char *argv[]) {
 
     dpctl_send_and_print(vconn, (struct ofl_msg_header *)&msg);
 }
-
-
 
 static void
 queue_mod(struct vconn *vconn, int argc UNUSED, char *argv[]) {
@@ -1019,13 +1051,14 @@ queue_del(struct vconn *vconn, int argc UNUSED, char *argv[]) {
 }
 
 static void
-get_async(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED){
+get_async (struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_async_config *msg;
+    msg = xmalloc (sizeof (struct ofl_msg_async_config));
+    msg->header.type = OFPT_GET_ASYNC_REQUEST;
+    msg->config = NULL;
 
-    struct ofl_msg_async_config msg =
-             {{.type = OFPT_GET_ASYNC_REQUEST},
-             .config = NULL};
-
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&msg, NULL);
+    dpctl_transact_and_print (vconn, (struct ofl_msg_header *)msg, NULL);
+    ofl_msg_free ((struct ofl_msg_header *)msg, 0);
 }
 
 static struct command all_commands[] = {

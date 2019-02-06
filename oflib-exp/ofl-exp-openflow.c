@@ -54,7 +54,7 @@ ofl_exp_openflow_msg_pack(struct ofl_msg_experimenter *msg, uint8_t **buf, size_
                 struct openflow_queue_command_header *ofp;
 
                 *buf_len = sizeof(struct openflow_queue_command_header) + ofl_structs_packet_queue_ofp_len(q->queue);
-                *buf     = (uint8_t *)malloc(*buf_len);
+                *buf     = (uint8_t *)calloc(1, *buf_len);
 
                 ofp = (struct openflow_queue_command_header *)(*buf);
                 ofp->header.vendor  = htonl(exp->header.experimenter_id);
@@ -69,7 +69,7 @@ ofl_exp_openflow_msg_pack(struct ofl_msg_experimenter *msg, uint8_t **buf, size_
                 struct openflow_ext_set_dp_desc *ofp;
 
                 *buf_len  = sizeof(struct openflow_ext_set_dp_desc);
-                *buf     = (uint8_t *)malloc(*buf_len);
+                *buf     = (uint8_t *)calloc(1, *buf_len);
 
                 ofp = (struct openflow_ext_set_dp_desc *)(*buf);
                 ofp->header.vendor  = htonl(exp->header.experimenter_id);
