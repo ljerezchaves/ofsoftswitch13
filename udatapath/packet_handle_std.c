@@ -336,13 +336,13 @@ packet_handle_std_validate(struct packet_handle_std *handle)
         /* Look for current metadata field */
         HMAP_FOR_EACH_WITH_HASH (field, struct ofl_match_tlv, hmap_node,
                                  hash_int (OXM_OF_METADATA, 0), &match->match_fields) {
-            metadata = (uint64_t)(*field->value);
+            metadata = *((uint64_t *)field->value);
         }
 
         /* Look for current tunnel_id field */ 
         HMAP_FOR_EACH_WITH_HASH (field, struct ofl_match_tlv, hmap_node,
                                  hash_int (OXM_OF_TUNNEL_ID, 0), &match->match_fields) {
-            handle->pkt->tunnel_id = (uint64_t)(*field->value);
+            handle->pkt->tunnel_id = *((uint64_t *)field->value);
         }
 
         /* Free fields previously allocated */
