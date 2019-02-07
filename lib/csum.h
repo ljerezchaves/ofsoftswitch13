@@ -45,6 +45,6 @@ uint16_t csum_finish(uint32_t partial);
 uint16_t recalc_csum16(uint16_t old_csum, uint16_t old_u16, uint16_t new_u16);
 uint16_t recalc_csum32(uint16_t old_csum, uint32_t old_u32, uint32_t new_u32);
 uint16_t recalc_csum64(uint16_t old_csum, uint64_t old_u64, uint64_t new_u64);
-uint16_t recalc_csum128(uint16_t old_csum, uint8_t old_u128[16], uint8_t new_u128[16]);
+uint16_t recalc_csum128(uint16_t old_csum, uint8_t const old_u128[16], uint8_t const new_u128[16]);
 
 #endif /* csum.h */
