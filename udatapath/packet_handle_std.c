@@ -239,13 +239,25 @@ packet_parse (struct packet const *pkt, struct ofl_match *m, struct protocols_st
 
     /* UDP */
     else if (next_proto == IP_TYPE_UDP) {
+        uint16_t dst_port;
+
         if (unlikely (pkt->buffer->size < offset + sizeof (struct udp_header))) return;
         proto->udp = (struct udp_header *)((uint8_t *)pkt->buffer->data + offset);
         offset += sizeof (struct udp_header);
 
+        dst_port = ntohs (proto->udp->udp_dst);
         ofl_structs_match_put16 (m, OXM_OF_UDP_SRC, ntohs (proto->udp->udp_src));
-        ofl_structs_match_put16 (m, OXM_OF_UDP_DST, ntohs (proto->udp->udp_dst));
-        
+        ofl_structs_match_put16 (m, OXM_OF_UDP_DST, dst_port);
+
+        /* GTP-U */
+        if (dst_port == GTPU_UDP_PORT) {
+            if (unlikely (pkt->buffer->size < offset + sizeof (struct gtpu_header))) return;
+            proto->gtpu = (struct gtpu_header *)((uint8_t *)pkt->buffer->data + offset);
+            offset += sizeof (struct gtpu_header);
+
+            ofl_structs_match_put32 (m, OXM_OF_GTPU_TEID, ntohl (proto->gtpu->gtpu_teid));
+        }
+
         /* No processing past UDP */
         return;
     }

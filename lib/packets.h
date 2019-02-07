@@ -413,6 +413,8 @@ struct mpls_header {
 
 BUILD_ASSERT_DECL(MPLS_HEADER_LEN == sizeof(struct mpls_header));
 
+#define GTPU_UDP_PORT 2152
+
 #define GTPU_HEADER_LEN 12
 struct gtpu_header {
     uint8_t  gtpu_flags;
