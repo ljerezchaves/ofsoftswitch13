@@ -44,130 +44,118 @@
 
 void
 packet_handle_std_validate(struct packet_handle_std *handle) {
-    if(handle->valid) {
+    if (handle->valid) {
         return;
-    }
-    else {
+    } else {
         struct packet *pkt = handle->pkt;
         struct ofl_match *m = &handle->match;
         struct protocols_std *proto = handle->proto;
+        struct ofl_match_tlv *iter, *next, *field;
         uint64_t current_metadata = 0;
-        uint64_t current_tunnel_id = handle->pkt->tunnel_id;
-        struct ofl_match_tlv *field;
-        size_t offset = 0;
         uint8_t next_proto = 0;
-        struct ofl_match_tlv * iter, *next, *f;
+        size_t offset = 0;
         
         handle->valid = true;
         m->header.type = OFPMT_OXM;
-        /* Look for current Metadata*/
-        HMAP_FOR_EACH_WITH_HASH(field, struct ofl_match_tlv, hmap_node,
-            hash_int(OXM_OF_METADATA,0), &m->match_fields){
-            current_metadata = (uint64_t) *field->value;
-            ofl_structs_match_put64(m, OXM_OF_METADATA, current_metadata);
-        }
-
-        /* Look for current tunnel_id*/ 
-        HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv,
-                        hmap_node, hash_int(OXM_OF_TUNNEL_ID,0), &m->match_fields){
-                current_tunnel_id = *((uint64_t*) f->value); 
-        }
-        /* Free fields allocated previously */
-        HMAP_FOR_EACH_SAFE(iter, next, struct ofl_match_tlv, hmap_node, &m->match_fields){
-            free(iter->value);
-            free(iter);
-        }
-        /* Resets all protocol fields to NULL */
-        protocol_reset(proto);
-        ofl_structs_match_init(m);
-        handle->valid = true;
-        /* Add pipeline fields to the respective match fields*/
-        ofl_structs_match_put32(m, OXM_OF_IN_PORT, handle->pkt->in_port);
-        ofl_structs_match_put64(m,  OXM_OF_METADATA, current_metadata);
-        ofl_structs_match_put64(m,  OXM_OF_TUNNEL_ID, current_tunnel_id);
-        /* Update packet tunnel id metadata */
-        handle->pkt->tunnel_id = current_tunnel_id;
-
         
-        /* Ethernet */
-        if (pkt->buffer->size < offset + sizeof(struct eth_header)) {
+        /* Look for current metadata field */
+        HMAP_FOR_EACH_WITH_HASH (field, struct ofl_match_tlv, hmap_node,
+                                 hash_int (OXM_OF_METADATA, 0), &m->match_fields) {
+            current_metadata = (uint64_t)(*field->value);
+        }
+
+        /* Look for current tunnel_id field */ 
+        HMAP_FOR_EACH_WITH_HASH (field, struct ofl_match_tlv, hmap_node,
+                                 hash_int (OXM_OF_TUNNEL_ID, 0), &m->match_fields) {
+            pkt->tunnel_id = (uint64_t)(*field->value);
+        }
+
+        /* Free fields previously allocated */
+        HMAP_FOR_EACH_SAFE (iter, next, struct ofl_match_tlv, hmap_node, &m->match_fields) {
+            free (iter->value);
+            free (iter);
+        }
+
+        /* Resets all protocol fields to NULL */
+        protocol_reset (proto);
+        ofl_structs_match_init (m);
+        
+        /* Add pipeline fields to the respective match fields*/
+        ofl_structs_match_put32 (m, OXM_OF_IN_PORT, pkt->in_port);
+        ofl_structs_match_put64 (m, OXM_OF_METADATA, current_metadata);
+        ofl_structs_match_put64 (m, OXM_OF_TUNNEL_ID, pkt->tunnel_id);
+
+        // Note: The following packet parsing considers only the protocols that
+        // are currently supported by ns-3 simulator
+
+        /* Ethernet II */
+        if (pkt->buffer->size < offset + sizeof (struct eth_header)) {
             return;
         }
-        proto->eth = (struct eth_header *)((uint8_t *)
-                                                pkt->buffer->data + offset);
-        offset += sizeof(struct eth_header);
-        if (ntohs(proto->eth->eth_type) >= ETH_TYPE_II_START) {
-            /* Ethernet II */
-            ofl_structs_match_put_eth(m, OXM_OF_ETH_SRC, proto->eth->eth_src);
-            ofl_structs_match_put_eth(m, OXM_OF_ETH_DST, proto->eth->eth_dst);
-            ofl_structs_match_put16(m, OXM_OF_ETH_TYPE,
-                                                ntohs(proto->eth->eth_type));
-        } else {
-            /* Ethernet 802.3 */
+        proto->eth = (struct eth_header *)((uint8_t *)pkt->buffer->data + offset);
+        offset += sizeof (struct eth_header);
+        ofl_structs_match_put_eth (m, OXM_OF_ETH_SRC, proto->eth->eth_src);
+        ofl_structs_match_put_eth (m, OXM_OF_ETH_DST, proto->eth->eth_dst);
+        ofl_structs_match_put16   (m, OXM_OF_ETH_TYPE, ntohs (proto->eth->eth_type));
+
+        if (ntohs (proto->eth->eth_type) < ETH_TYPE_II_START) {
+            /* Ethernet 802.3 / IEEE 802.2 LLC */
             struct llc_header *llc;
-            if (pkt->buffer->size < offset + sizeof(struct llc_header)) {
+            if (pkt->buffer->size < offset + sizeof (struct llc_header)) {
                 return;
             }
             llc = (struct llc_header *)((uint8_t *)pkt->buffer->data + offset);
-            offset += sizeof(struct llc_header);
+            offset += sizeof (struct llc_header);
 
-            if (!(llc->llc_dsap == LLC_DSAP_SNAP &&
-                  llc->llc_ssap == LLC_SSAP_SNAP &&
-                  llc->llc_cntl == LLC_CNTL_SNAP)) {
+            if (llc->llc_dsap != LLC_DSAP_SNAP ||
+                llc->llc_ssap != LLC_SSAP_SNAP ||
+                llc->llc_cntl != LLC_CNTL_SNAP) {
                 return;
             }
-
-            if (pkt->buffer->size < offset + sizeof(struct snap_header)) {
+            /* IEEE 802.2 SNAP */
+            if (pkt->buffer->size < offset + sizeof (struct snap_header)) {
                 return;
             }
-            proto->eth_snap = (struct snap_header *)((uint8_t *)
-                                        pkt->buffer->data + offset);
-            offset += sizeof(struct snap_header);
+            proto->eth_snap = (struct snap_header *)((uint8_t *)pkt->buffer->data + offset);
+            offset += sizeof (struct snap_header);
 
-            if (memcmp(proto->eth_snap->snap_org, SNAP_ORG_ETHERNET,
-                                            sizeof(SNAP_ORG_ETHERNET)) != 0) {
+            if (memcmp (proto->eth_snap->snap_org, SNAP_ORG_ETHERNET,
+                        sizeof (SNAP_ORG_ETHERNET)) != 0) {
                 return;
             }
-            ofl_structs_match_put_eth(m, OXM_OF_ETH_SRC, proto->eth->eth_src);
-            ofl_structs_match_put_eth(m, OXM_OF_ETH_DST, proto->eth->eth_dst);
-            ofl_structs_match_put16(m, OXM_OF_ETH_TYPE,
-                                                ntohs(proto->eth->eth_type));
         }
 
         /* VLAN */
-        if (ntohs(proto->eth->eth_type) == ETH_TYPE_VLAN ||
-            ntohs(proto->eth->eth_type) == ETH_TYPE_VLAN_PBB) {
+        if (ntohs (proto->eth->eth_type) == ETH_TYPE_VLAN ||
+            ntohs (proto->eth->eth_type) == ETH_TYPE_VLAN_PBB) {
             uint16_t vlan_id;
             uint8_t vlan_pcp;
-            if (pkt->buffer->size < offset + sizeof(struct vlan_header)) {
+            
+            if (pkt->buffer->size < offset + sizeof (struct vlan_header)) {
                 return;
             }
-            proto->vlan = (struct vlan_header *)((uint8_t *)
-                                                pkt->buffer->data + offset);
+            proto->vlan = (struct vlan_header *)((uint8_t *)pkt->buffer->data + offset);
+            offset += sizeof (struct vlan_header);
             proto->vlan_last = proto->vlan;
-            offset += sizeof(struct vlan_header);
-            vlan_id  = (ntohs(proto->vlan->vlan_tci) &
-                                            VLAN_VID_MASK) >> VLAN_VID_SHIFT;
-            vlan_pcp = (ntohs(proto->vlan->vlan_tci) &
-                                            VLAN_PCP_MASK) >> VLAN_PCP_SHIFT;
-            ofl_structs_match_put16(m, OXM_OF_VLAN_VID, vlan_id);
-            ofl_structs_match_put8(m, OXM_OF_VLAN_PCP, vlan_pcp);
+            
+            vlan_id  = (ntohs (proto->vlan->vlan_tci) & VLAN_VID_MASK) >> VLAN_VID_SHIFT;
+            vlan_pcp = (ntohs (proto->vlan->vlan_tci) & VLAN_PCP_MASK) >> VLAN_PCP_SHIFT;
+            ofl_structs_match_put16 (m, OXM_OF_VLAN_VID, vlan_id);
+            ofl_structs_match_put8  (m, OXM_OF_VLAN_PCP, vlan_pcp);
+
             // Note: DL type is updated
-            ofl_structs_match_put16(m, OXM_OF_ETH_TYPE,
-                                           ntohs(proto->vlan->vlan_next_type));
+            ofl_structs_match_put16 (m, OXM_OF_ETH_TYPE, ntohs (proto->vlan->vlan_next_type));
         }
 
-        /* skip through rest of VLAN tags */
-        while (ntohs(proto->eth->eth_type) == ETH_TYPE_VLAN ||
-               ntohs(proto->eth->eth_type) == ETH_TYPE_VLAN_PBB) {
+        /* Skip through rest of VLAN tags */
+        while (ntohs (proto->eth->eth_type) == ETH_TYPE_VLAN ||
+               ntohs (proto->eth->eth_type) == ETH_TYPE_VLAN_PBB) {
             if (pkt->buffer->size < offset + sizeof(struct vlan_header)) {
                 return;
             }
-            proto->vlan_last = (struct vlan_header *)((uint8_t *)
-                                                  pkt->buffer->data + offset);
+            proto->vlan_last = (struct vlan_header *)((uint8_t *)pkt->buffer->data + offset);
             offset += sizeof(struct vlan_header);
-            ofl_structs_match_put16(m, OXM_OF_ETH_TYPE,
-                                           ntohs(proto->vlan->vlan_next_type));
+            ofl_structs_match_put16 (m, OXM_OF_ETH_TYPE, ntohs (proto->vlan->vlan_next_type));
         }
 
         /* PBB ISID */
