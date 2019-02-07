@@ -44,7 +44,7 @@ udatapath_ofdatapath_SOURCES = \
 	udatapath/pipeline.h \
 	udatapath/udatapath.c
 
-udatapath_ofdatapath_LDADD = lib/libopenflow.a oflib/liboflib.a oflib-exp/liboflib_exp.a nbee_link/libnbee_link.a $(SSL_LIBS) $(FAULT_LIBS)
+udatapath_ofdatapath_LDADD = lib/libopenflow.a oflib/liboflib.a oflib-exp/liboflib_exp.a $(SSL_LIBS) $(FAULT_LIBS)
 udatapath_ofdatapath_CPPFLAGS = $(AM_CPPFLAGS)
 nodist_EXTRA_udatapath_ofdatapath_SOURCES = dummy.cxx
 
@@ -101,7 +101,7 @@ udatapath_libudatapath_a_SOURCES = \
 	udatapath/udatapath.c
 
 udatapath_libudatapath_a_CPPFLAGS = $(AM_CPPFLAGS)
-udatapath_libudatapath_a_CPPFLAGS += -DOF_HW_PLAT -DUDATAPATH_AS_LIB -g -lnbee_link
+udatapath_libudatapath_a_CPPFLAGS += -DOF_HW_PLAT -DUDATAPATH_AS_LIB -g
 
 endif
 
@@ -156,9 +156,7 @@ udatapath_libns3ofswitch13_a_SOURCES = \
 	lib/timeval.h \
 	lib/timeval.c \
 	lib/vlog.h \
-	lib/vlog.c \
-	nbee_link/nbee_link.h \
-	nbee_link/nbee_link.cpp
+	lib/vlog.c
 
 udatapath_libns3ofswitch13_a_LIBADD = \
 	oflib/ofl-actions.o \
@@ -235,6 +233,6 @@ udatapath_libns3ofswitch13_a_LIBADD += \
 endif
 
 udatapath_libns3ofswitch13_a_CPPFLAGS = $(AM_CPPFLAGS)
-udatapath_libns3ofswitch13_a_CPPFLAGS += -DUDATAPATH_AS_LIB -DDPCTL_AS_LIB -DNS3_OFSWITCH13 -DNETPDLDIR='"$(shell pwd)"' -g -lnbee_link
+udatapath_libns3ofswitch13_a_CPPFLAGS += -DUDATAPATH_AS_LIB -DDPCTL_AS_LIB -DNS3_OFSWITCH13 -g
 
 endif
