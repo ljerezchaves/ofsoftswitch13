@@ -217,6 +217,7 @@ meter_entry_apply(struct meter_entry *entry, struct packet **pkt){
 	size_t b;
 	bool drop = false;
 
+    VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu applying meter id %d", entry->dp->id, entry->config->meter_id);
     entry->stats->packet_in_count++;
     entry->stats->byte_in_count += (*pkt)->buffer->size;
 
@@ -277,7 +278,7 @@ meter_entry_apply(struct meter_entry *entry, struct packet **pkt){
         entry->stats->band_stats[b]->byte_band_count += (*pkt)->buffer->size;
         entry->stats->band_stats[b]->packet_band_count++;
         if (drop){
-            VLOG_DBG_RL(LOG_MODULE, &rl, "Dropping packet: rate %d", band_header->rate);
+            VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu dropping packet: rate %d", entry->dp->id, band_header->rate);
 #ifdef NS3_OFSWITCH13
             if (entry->dp->meter_drop_cb != 0) {
                 entry->dp->meter_drop_cb (*pkt, entry);
