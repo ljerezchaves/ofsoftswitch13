@@ -14,20 +14,6 @@ install_deps()
     fi
 }
 
-install_nbee()
-{
-    if [ ! -d "netbee" ]; then
-        git clone https://github.com/netgroup-polito/netbee.git
-    fi
-    cd netbee/src
-    cmake .
-    make
-    cd ..
-    sudo cp bin/libn*.so /usr/local/lib
-    sudo ldconfig
-    sudo cp -R include/* /usr/include/
-}
-
 switch()
 {   
     if [ ${BUILD_DIR##*/} != "ofsoftswitch13" ]; then
@@ -42,5 +28,4 @@ switch()
 }
 
 install_deps
-install_nbee
 switch
