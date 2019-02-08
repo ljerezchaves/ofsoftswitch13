@@ -239,14 +239,17 @@ packet_parse (struct packet const *pkt, struct ofl_match *m, struct protocols_st
 
     /* UDP */
     else if (next_proto == IP_TYPE_UDP) {
+        uint16_t src_port;
         uint16_t dst_port;
 
         if (unlikely (pkt->buffer->size < offset + sizeof (struct udp_header))) return;
         proto->udp = (struct udp_header *)((uint8_t *)pkt->buffer->data + offset);
         offset += sizeof (struct udp_header);
 
+        src_port = ntohs (proto->udp->udp_src);
         dst_port = ntohs (proto->udp->udp_dst);
-        ofl_structs_match_put16 (m, OXM_OF_UDP_SRC, ntohs (proto->udp->udp_src));
+        
+        ofl_structs_match_put16 (m, OXM_OF_UDP_SRC, src_port);
         ofl_structs_match_put16 (m, OXM_OF_UDP_DST, dst_port);
 
         /* GTP-U */
