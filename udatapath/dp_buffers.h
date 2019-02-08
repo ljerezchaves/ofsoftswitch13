@@ -81,5 +81,8 @@ dp_buffers_is_alive(struct dp_buffers *dpb, uint32_t id);
 void
 dp_buffers_discard(struct dp_buffers *dpb, uint32_t id, bool destroy);
 
+/* Destroy the set of buffers */
+void
+dp_buffers_destroy(struct dp_buffers *dpb);
 
 #endif /* DP_BUFFERS_H */
