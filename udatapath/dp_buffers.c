@@ -189,11 +189,21 @@ dp_buffers_discard(struct dp_buffers *dpb, uint32_t id, bool destroy) {
 
     p = &dpb->buffers[id & PKT_BUFFER_MASK];
 
-    if (p->cookie == id >> PKT_BUFFER_BITS) {
+    if (p->cookie == id >> PKT_BUFFER_BITS && p->pkt != NULL) {
         if (destroy) {
             p->pkt->buffer_id = NO_BUFFER;
             packet_destroy(p->pkt);
         }
         p->pkt = NULL;
     }
+}
+
+void
+dp_buffers_destroy(struct dp_buffers *dpb) {
+    size_t i;
+    
+    for (i = 0; i < N_PKT_BUFFERS; i++) {
+        dp_buffers_discard (dpb, i, true);
+    }
+    free (dpb);
 }
