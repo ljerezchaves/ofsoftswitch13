@@ -241,7 +241,7 @@ packet_parse (struct packet const *pkt, struct ofl_match *m, struct protocols_st
     else if (next_proto == IP_TYPE_UDP) {
         uint16_t src_port;
         uint16_t dst_port;
-
+        
         if (unlikely (pkt->buffer->size < offset + sizeof (struct udp_header))) return;
         proto->udp = (struct udp_header *)((uint8_t *)pkt->buffer->data + offset);
         offset += sizeof (struct udp_header);
@@ -251,7 +251,7 @@ packet_parse (struct packet const *pkt, struct ofl_match *m, struct protocols_st
         
         ofl_structs_match_put16 (m, OXM_OF_UDP_SRC, src_port);
         ofl_structs_match_put16 (m, OXM_OF_UDP_DST, dst_port);
-
+        
         /* GTP-U */
         if (dst_port == GTPU_UDP_PORT) {
             if (unlikely (pkt->buffer->size < offset + sizeof (struct gtpu_header))) return;
