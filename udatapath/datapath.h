@@ -56,6 +56,7 @@
 
 #ifdef NS3_OFSWITCH13
 #include "meter_entry.h"
+#include "flow_table.h"
 #endif
 
 struct rconn;
@@ -133,8 +134,9 @@ struct datapath {
     void (*buff_save_cb) (struct packet *pkt, time_t timeout);
     void (*buff_retrieve_cb) (struct packet *pkt);
 
-    // Callback to notify the simulator when dropping a packet due to meter band.
+    // Callbacks to notify the simulator when dropping a packet due to meter band or table miss.
     void (*meter_drop_cb) (struct packet *pkt, struct meter_entry *entry);
+    void (*miss_drop_cb) (struct packet *pkt, struct flow_table *table);
 
     // Callback to notify the simulator of a new meter entry created at meter table.
     void (*meter_created_cb) (struct meter_entry *entry);
