@@ -181,6 +181,11 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
         } else {
 			/* OpenFlow 1.3 default behavior on a table miss */
 			VLOG_DBG_RL(LOG_MODULE, &rl, "Datapath %lu No matching entry found. Dropping packet.", pl->dp->id);
+#ifdef NS3_OFSWITCH13
+            if (pl->dp->miss_drop_cb != 0) {
+                pl->dp->miss_drop_cb (pkt, table);
+            }
+#endif
 			packet_destroy(pkt);
 			return;
         }
