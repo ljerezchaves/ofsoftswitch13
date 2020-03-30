@@ -1,6 +1,6 @@
 # OpenFlow 1.3 Software Switch for ns-3
 
-This is an [OpenFlow 1.3][ofp13] compatible user-space software switch implementation, forked from the original [Basic OpenFlow User Space Software Switch (BOFUSS)][cpqdofs13] and slightly modified to proper integration with the [OFSwitch13 module][ofswitch13] for the [ns-3 Network Simulator][ns-3]. This code does not modify the original switch datapath implementation, which is currently maintained in the original repository and regularly synced to the master branch on this one. The modified `ns3lib` branch includes some callbacks, compiler directives and minor changes in struct declarations to allow integration with the OFSwitch13 module. 
+This is an [OpenFlow 1.3][ofp13] compatible user-space software switch implementation, forked from the original [Basic OpenFlow User Space Software Switch (BOFUSS)][cpqdofs13] and slightly modified to proper integration with the [OFSwitch13 module][ofswitch13] for the [ns-3 Network Simulator][ns-3]. This code does not modify the original switch datapath implementation, which is currently maintained in the original repository and regularly synced to the master branch on this one. The modified `ns3lib` branch includes some callbacks, compiler directives and minor changes in struct declarations to allow integration with the OFSwitch13 module. The `ns3lib-gtpu` branch also enhances the software switch with GTP-U OXM support.
 
 # Contribute
 Please, consider submitting your bug reports to the original [BOFUSS project][cpqdofs13].
